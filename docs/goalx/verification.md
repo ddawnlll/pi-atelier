@@ -32,12 +32,12 @@ warnings   []
 | Command | Result |
 |---|---|
 | `npm run typecheck` | pass |
-| `npm run format:check` | pass (86 files) |
+| `npm run format:check` | pass (92 files) |
 | `npm run check:pack` | pass (38 files) |
 | `npm test` | 571 passed, 3 failed, 2 skipped — the 3 are the pre-existing Windows baseline failures (`run-activity` POSIX-home assertions, `subagent-usage` symlink `EPERM`) reproduced on `upstream/main` |
 | `npm run check` | runs the whole chain: typecheck, `format:check` (92 files), `test`, `check:pack`, `check:audit`, `check:install`; it stops only at the 3 pre-existing Windows test failures (see `bench/BASELINE.md`), which are identical on upstream |
 | `npm run bench:sidebar` | succeeds on Windows via the preloaded junction shim; span 0.68-1.24 ms across runs (see `performance.md`) |
-| `npm run bench:goalx` | panel cost measured directly: 0.8898 -> 0.9228 ms (+0.03 ms) in the default layout, 0.664 ms in the goal-focused layout |
+| `npm run bench:goalx` | panel cost measured directly: 0.8898 -> 0.9228 ms (+0.033 ms) in the default layout, 0.664 ms in the goal-focused layout |
 | `npm run bench:sidebar` | no regression (see `performance.md`) |
 
 ### Isolated Pi process

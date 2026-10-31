@@ -6,9 +6,9 @@
 |---|---|
 | Fork | https://github.com/ddawnlll/pi-atelier |
 | Branch | `feat/pi-goal-x-integration` |
-| Code commit | `89c62da` (this file ships in the docs-only commit that follows it; the installed pin is that later commit) |
+| Code commit | filled in the docs-only commit that follows |
 | Upstream base | `93025f2` — pi-atelier 0.18.0, MIT |
-| Changed files |  63 files changed, 5800 insertions(+), 8 deletions(-) — `git diff --shortstat upstream/main..89c62da` |
+| Changed files | filled in the docs-only commit that follows the code commit |
 | Remotes | `origin` = fork, `upstream` = michaelmjhhhh/pi-atelier |
 | Installed pin | read from `pi list`; equals `git rev-parse HEAD` in the installed checkout |
 
@@ -40,9 +40,12 @@ integration's on/off state.
 - `npm run typecheck` pass · `npm run format:check` pass (92 files) · `npm run check:pack` pass
   (38 files) · `npm test` **571 passed / 3 failed / 2 skipped** (the 3 are the pre-existing Windows
   failures recorded in `bench/BASELINE.md`, reproduced on upstream before any change).
-- Benchmark: baseline 3.1619 / 1.8922 / 3.5070 ms; branch 2.4435 / 1.7163 / 3.6750 ms
-  (`npm run bench:sidebar`) and 1.6491 / 0.9688 / 2.2758 ms (`npm run bench:sidebar:win`).
-  No regression; the harness does not exercise the Goal X panel (see `performance.md`).
+- Benchmark (`npm run bench:sidebar`, like-for-like pair): baseline 1.0651 / 0.7250 / 0.9960 ms, branch 1.0609 / 0.6829 / 1.2363 ms at
+  0/8/64 panels. The 64-panel case moved from 0.9960 to 1.2363 ms; repeated runs varied by more
+  than that, so it is reported as measured rather than claimed as a regression or an improvement.
+- Panel cost (`npm run bench:goalx`): 0.8898 ms without the contributed panel, 0.9228 ms with it
+  (+0.033 ms), and 0.664 ms in the goal-focused layout. Stress runs elsewhere on this machine
+  measured higher absolute numbers (1.4429 -> 1.6043 ms); the relative cost is the same order.
 - Live isolated Pi 1.4.0 ConPTY run: 18/18 checks pass (pyte screen, border-anchored panel
   extraction, synthetic goals, explicit vs inferred current task, transition frames required to
   differ), frames and PNGs in

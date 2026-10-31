@@ -14,7 +14,7 @@
 
 | Item | Value |
 |---|---|
-| Active Atelier | `git:github.com/ddawnlll/pi-atelier@<pin>` → `~/.pi/agent/git/github.com/ddawnlll/pi-atelier` — read the pin from `pi list`; it always equals `git rev-parse HEAD` in the installed checkout |
+| Active Atelier | `git:github.com/ddawnlll/pi-atelier@5c3efe16f5dde31301265937fb8661fb4110a37b` → `~/.pi/agent/git/github.com/ddawnlll/pi-atelier` (the pin is what `pi list` prints and always equals `git rev-parse HEAD` in that checkout; later docs-only commits raise it) |
 | Instances | exactly one; the upstream git package was removed first |
 | Other extensions | unchanged (`pi-observational-memory`, `@pi-plugins/speed`, `pi-goal-x`, `@tintinweb/pi-subagents`, `opensec-pi-todo`, `opensec-pi-fff`) |
 | Preset | `~/.pi/agent/pi-atelier.json` → `{"preset":"goalfocus","sidebarWidth":32}` |

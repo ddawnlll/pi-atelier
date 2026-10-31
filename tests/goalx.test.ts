@@ -115,6 +115,11 @@ describe("goal file parsing", () => {
 		expect(parseGoalXRecord("not json at all")).toBeUndefined();
 	});
 
+	it("normalizes an unknown status to active instead of dropping the goal", () => {
+		const goal = parseGoalXRecord('{"id":"g","objective":"o","status":"bogus","taskList":{"tasks":[]}}');
+		expect(goal?.status).toBe("active");
+	});
+
 	it("drops malformed tasks instead of failing the goal", () => {
 		const goal = parseGoalXRecord(
 			'{"id":"g","objective":"o","taskList":{"tasks":[{"id":"a","title":"ok","status":"pending"},{"id":1},{"id":"b"}]}}',

@@ -194,7 +194,7 @@ def main() -> int:
     parser.add_argument("--session", default=None, help="real session jsonl (a copy is used)")
     parser.add_argument("--goals", default=None, help="goal root (copied; only the copy is edited)")
     parser.add_argument("--atelier", default=None, help="this checkout; defaults to the repo root")
-    parser.add_argument("--cwd", default=os.getcwd())
+    parser.add_argument("--cwd", default=None, help="session cwd (defaults to the session header)")
     parser.add_argument("--node", default=shutil.which("node") or "node")
     parser.add_argument("--cli", default=None)
     args = parser.parse_args()
@@ -231,14 +231,25 @@ def main() -> int:
         if not sessions:
             raise SystemExit("no session file found; pass --session")
         args.session = str(sessions[-1])
+    session_cwd = None
+    try:
+        header = json.loads(Path(args.session).read_text(encoding="utf-8").splitlines()[0])
+        if isinstance(header.get("cwd"), str):
+            session_cwd = header["cwd"]
+    except Exception:
+        session_cwd = None
+    if session_cwd and not args.cwd:
+        args.cwd = session_cwd
     if not args.goals:
-        # The session's cwd owns the goal root; fall back to the checkout.
-        for candidate in (Path(args.cwd) / ".pi/goals", repo_root / ".pi/goals"):
-            if candidate.exists():
-                args.goals = str(candidate)
-                break
-        else:
+        # The session's recorded cwd owns the goal root; fall back to the process cwd, then the checkout.
+        candidates = []
+        if session_cwd:
+            candidates.append(Path(session_cwd) / ".pi/goals")
+        candidates += [Path(args.cwd) / ".pi/goals", Path.cwd() / ".pi/goals", repo_root / ".pi/goals"]
+        found = next((c for c in candidates if c.exists()), None)
+        if found is None:
             raise SystemExit("no goal root found; pass --goals")
+        args.goals = str(found)
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -260,6 +271,9 @@ def main() -> int:
         shutil.copy2(auth, agent / "auth.json")
     session = work / "session.jsonl"
     shutil.copy2(args.session, session)
+
+    if not args.cwd:
+        args.cwd = os.getcwd()
 
     env = dict(os.environ)
     env["PI_CODING_AGENT_DIR"] = str(agent)

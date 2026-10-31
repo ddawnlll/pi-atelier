@@ -10,7 +10,7 @@ Windows Terminal / PowerShell. The checkout was normalized to LF because the rep
 | `npm run format:check` | pass after LF normalization (73 CRLF errors before) |
 | `npm run check:pack` | pass — 36 files |
 | `npm test` | 490 passed / 3 failed (493, 25 files) |
-| `npm run bench:sidebar` | 3.1619 / 1.8922 / 3.5070 ms at 0/8/64 panels |
+| `npm run bench:sidebar` | 1.0651 / 0.7250 / 0.9960 ms at 0/8/64 panels (same command and shim as the after run, so the pair is like-for-like) |
 
 Pre-existing Windows-only failures, reproduced before any edit and still failing after (unrelated
 to this work):

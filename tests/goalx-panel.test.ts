@@ -222,6 +222,23 @@ describe("auditor presentation", () => {
 		expect(text).toContain("- test receipt");
 	});
 
+	it("falls back to a plain message when the auditor reported no detail", () => {
+		const text = joined(
+			view({
+				audit: {
+					phase: "error",
+					checksKnown: true,
+					checks: [{ id: "decision", label: "Final decision", state: "failed" }],
+					decision: "error",
+					verdict: "error",
+					findings: [],
+				},
+			}),
+		);
+		expect(text).toContain("AUDIT · ERROR");
+		expect(text).toContain("Auditor could not finish");
+	});
+
 	it("renders errors and skips distinctly", () => {
 		expect(
 			joined(
@@ -339,6 +356,32 @@ describe("sidebar integration and responsive width", () => {
 				}
 			}
 		}
+	});
+
+	it("renders a skipped task with its own mark", () => {
+		const skipped = parseGoalXRecord(
+			JSON.stringify({
+				id: "goal-skip",
+				objective: "Skipped work",
+				status: "active",
+				taskList: {
+					tasks: [
+						{ id: "task-1", title: "Dropped", status: "skipped" },
+						{ id: "task-2", title: "Next", status: "pending" },
+					],
+				},
+			}),
+		);
+		if (!skipped) throw new Error("fixture did not parse");
+		const text = joined(
+			view({
+				goal: skipped,
+				currentTask: deriveGoalXCurrentTask(skipped),
+				progress: deriveGoalXProgress(skipped),
+			}),
+		);
+		expect(text).toContain("– Dropped");
+		expect(text).toContain("1 done");
 	});
 
 	it("keeps every line inside the width for a very long unicode objective", () => {
