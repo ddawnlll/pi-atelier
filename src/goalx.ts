@@ -56,19 +56,23 @@ export interface GoalXCurrentTask {
 export type GoalXAuditPhase = "idle" | "running" | "approved" | "disapproved" | "error" | "skipped";
 export type GoalXCheckState = "pending" | "running" | "passed" | "failed";
 
+/**
+ * A per-check signal Goal X actually persisted. Goal X does not persist individual check results,
+ * so this type only ever carries the single `decision` signal that the verdict itself proves.
+ */
 export interface GoalXAuditCheck {
-	id: "objective" | "verification" | "tasks" | "workspace" | "decision";
+	id: "decision";
 	label: string;
 	state: GoalXCheckState;
-	/** True when the state was derived from Goal X's stage bands rather than a measured result. */
-	estimated: boolean;
 }
 
 export interface GoalXAudit {
 	phase: GoalXAuditPhase;
-	/** True only when Goal X reported a stage-bound percentage; never invented here. */
+	/** False: Goal X persists no per-check results. The panel says so instead of guessing. */
 	checksKnown: boolean;
 	checks: GoalXAuditCheck[];
+	/** Explicit decision record; absent means no verdict exists yet. */
+	decision?: "pending" | "approved" | "changes_requested" | "error" | "skipped";
 	verdict?: "approved" | "disapproved" | "error";
 	report?: string;
 	findings: string[];
@@ -93,8 +97,20 @@ export interface GoalXView {
 	warnings: string[];
 }
 
+/** Session focus, read from Goal X's `pi-goal-focus` session entries. */
+export interface GoalXFocus {
+	focusedGoalId: string | null;
+	/** Goal X records the storage root alongside focus when it differs from the default. */
+	storageRoot?: string;
+}
+
 export interface GoalXViewOptions {
 	cwd: string;
+	/**
+	 * Focus for THIS session. Never derived from the project pool: a goal another session focused,
+	 * or a goal that merely exists, must not become this session's focus.
+	 */
+	focus?: GoalXFocus;
 	env?: NodeJS.ProcessEnv;
 	homeDir?: string;
 	/** Cap on ledger bytes read from the tail (default 512 KiB). */
@@ -103,13 +119,8 @@ export interface GoalXViewOptions {
 
 const EMPTY_AUDIT: GoalXAudit = { phase: "idle", checksKnown: false, checks: [], findings: [] };
 
-const CHECK_LABELS: ReadonlyArray<{ id: GoalXAuditCheck["id"]; label: string }> = [
-	{ id: "objective", label: "Objective" },
-	{ id: "verification", label: "Task evidence" },
-	{ id: "tasks", label: "Contracts" },
-	{ id: "workspace", label: "Workspace" },
-	{ id: "decision", label: "Final decision" },
-];
+/** The only per-check signal the ledger can prove: the final decision itself. */
+const DECISION_LABEL = "Final decision";
 
 // ── Storage root resolution ─────────────────────────────────────────────────
 
@@ -143,6 +154,11 @@ export function resolveGoalXRoot(options: GoalXViewOptions): string {
 	const agentDir = env.PI_CODING_AGENT_DIR?.trim()
 		? path.resolve(cwd, expandHome(env.PI_CODING_AGENT_DIR.trim(), homeDir))
 		: path.join(homeDir, ".pi", "agent");
+	const sessionRoot = options.focus?.storageRoot?.trim();
+	if (sessionRoot) {
+		const expanded = expandHome(sessionRoot, homeDir);
+		if (path.isAbsolute(expanded) && !expanded.includes("\0")) return path.normalize(expanded);
+	}
 	const override = env.PI_GOAL_ROOT?.trim();
 	const configured =
 		(override ? expandHome(override, homeDir) : undefined) ??
@@ -378,40 +394,41 @@ function parseLedger(text: string): { events: GoalXLedgerEvent[]; malformed: num
 	return { events, malformed };
 }
 
-function readCheckpointFocus(root: string): { focusedGoalId: string | null; coveredEvents: number } {
-	try {
-		const parsed: unknown = JSON.parse(
-			fs.readFileSync(path.join(root, ".goal-ledger-checkpoint.json"), "utf8"),
-		);
-		if (!isRecord(parsed) || !isRecord(parsed.acc)) return { focusedGoalId: null, coveredEvents: 0 };
-		const focused = parsed.acc.focusedGoalId;
-		return {
-			focusedGoalId: typeof focused === "string" && focused !== "" ? focused : null,
-			coveredEvents: typeof parsed.coveredEvents === "number" ? parsed.coveredEvents : 0,
-		};
-	} catch {
-		return { focusedGoalId: null, coveredEvents: 0 };
-	}
+/** Entry `customType` Goal X writes when focus changes (goal-format.ts `FOCUS_ENTRY`). */
+export const GOALX_FOCUS_ENTRY = "pi-goal-focus";
+
+interface SessionEntryLike {
+	type?: string;
+	customType?: string;
+	data?: unknown;
 }
 
-/** Focus is ledger-owned: checkpoint baseline, then every later focus event. */
-export function deriveGoalXFocus(
-	events: readonly GoalXLedgerEvent[],
-	checkpoint: { focusedGoalId: string | null; coveredEvents: number },
-): string | null {
-	let focused = checkpoint.focusedGoalId;
-	const start = Math.max(0, Math.min(checkpoint.coveredEvents, events.length));
-	for (let index = start; index < events.length; index += 1) {
-		const event = events[index];
-		if (!event) continue;
-		if (event.type === "goal_focused" && typeof event.goalId === "string") focused = event.goalId;
-		else if (event.type === "goal_unfocused") focused = null;
-		else if (event.type === "goal_completed" && typeof event.goalId === "string" && focused === event.goalId)
-			focused = null;
-		else if (event.type === "goal_aborted" && typeof event.goalId === "string" && focused === event.goalId)
-			focused = null;
+/**
+ * Reads the session's most recent Goal X focus entry. This is the only authoritative source of
+ * per-session focus: Goal X records focus in the session transcript, not in the project ledger.
+ * An explicit unfocus entry (`focusedGoalId: null`) is honoured and never overridden.
+ *
+ * Later entries win; malformed entries are ignored rather than guessed at.
+ */
+export function readSessionGoalXFocus(entries: readonly unknown[]): GoalXFocus | undefined {
+	let focus: GoalXFocus | undefined;
+	for (const raw of entries) {
+		if (!isRecord(raw)) continue;
+		const entry = raw as SessionEntryLike;
+		if (entry.type !== "custom" || entry.customType !== GOALX_FOCUS_ENTRY) continue;
+		const data = entry.data;
+		if (!isRecord(data)) continue;
+		const id = data.focusedGoalId;
+		if (id === null) {
+			focus = { focusedGoalId: null };
+			continue;
+		}
+		if (typeof id !== "string" || id === "") continue;
+		const root =
+			typeof data.storageRoot === "string" && data.storageRoot !== "" ? data.storageRoot : undefined;
+		focus = root ? { focusedGoalId: id, storageRoot: root } : { focusedGoalId: id };
 	}
-	return focused;
+	return focus;
 }
 
 function findLastAuditEvent(
@@ -427,15 +444,19 @@ function findLastAuditEvent(
 	return undefined;
 }
 
-function checksForResult(verdict: "approved" | "disapproved" | "error"): GoalXAuditCheck[] {
-	// Goal X's own finished-audit rule: everything except the decision passed, and
-	// the decision follows the verdict. Nothing here is invented beyond that rule.
-	return CHECK_LABELS.map(({ id, label }) => ({
-		id,
-		label,
-		state: id === "decision" ? (verdict === "approved" ? "passed" : "failed") : "passed",
-		estimated: false,
-	}));
+/**
+ * Goal X persists only `audit_result{verdict,report}`. The single decision check is therefore the
+ * only check that can be reported; naming the other stages would claim results that were never
+ * recorded.
+ */
+function decisionCheck(verdict: "approved" | "disapproved" | "error"): GoalXAuditCheck[] {
+	return [
+		{
+			id: "decision",
+			label: DECISION_LABEL,
+			state: verdict === "approved" ? "passed" : "failed",
+		},
+	];
 }
 
 /** Extracts up to three concrete findings from an auditor report, deterministically. */
@@ -461,17 +482,14 @@ export function extractGoalXFindings(report: string): string[] {
 /** Derives the audit state from the ledger only — no live auditor access exists here. */
 export function deriveGoalXAudit(events: readonly GoalXLedgerEvent[], goalId: string): GoalXAudit {
 	const latest = findLastAuditEvent(events, goalId);
-	if (!latest) return { ...EMPTY_AUDIT, checks: [], findings: [] };
+	if (!latest) return { ...EMPTY_AUDIT, checks: [] };
 	if (latest.type === "audit_started") {
+		// Goal X reports start and (much later) the verdict; nothing in between is persisted.
 		return {
 			phase: "running",
 			checksKnown: false,
-			checks: CHECK_LABELS.map(({ id, label }) => ({
-				id,
-				label,
-				state: id === "objective" ? "running" : "pending",
-				estimated: true,
-			})),
+			checks: [],
+			decision: "pending",
 			findings: [],
 			...(typeof latest.at === "string" ? { at: latest.at } : {}),
 		};
@@ -481,6 +499,7 @@ export function deriveGoalXAudit(events: readonly GoalXLedgerEvent[], goalId: st
 			phase: "skipped",
 			checksKnown: false,
 			checks: [],
+			decision: "skipped",
 			findings: [],
 			...(typeof latest.reason === "string" ? { reason: latest.reason } : {}),
 			...(typeof latest.at === "string" ? { at: latest.at } : {}),
@@ -494,7 +513,8 @@ export function deriveGoalXAudit(events: readonly GoalXLedgerEvent[], goalId: st
 	return {
 		phase: verdict,
 		checksKnown: true,
-		checks: checksForResult(verdict),
+		checks: decisionCheck(verdict),
+		decision: verdict === "approved" ? "approved" : verdict === "disapproved" ? "changes_requested" : "error",
 		verdict,
 		...(report ? { report } : {}),
 		findings: verdict === "approved" ? [] : extractGoalXFindings(report),
@@ -529,6 +549,11 @@ export interface GoalXReader {
 }
 
 export interface GoalXReaderOptions extends GoalXViewOptions {
+	/**
+	 * Current session focus. Read on every `view()` so a focus change (a new
+	 * `pi-goal-focus` entry) is picked up even though it touches no file on disk.
+	 */
+	getFocus?: () => GoalXFocus | undefined;
 	/** Called after a watched change is observed (already debounced). */
 	onChange?: () => void;
 	/** Disable the directory watcher (tests, headless callers). */
@@ -567,29 +592,12 @@ function loadFocusedGoal(root: string, focusedId: string | null): { goal?: GoalX
 export function readGoalXView(options: GoalXViewOptions): GoalXView {
 	const root = resolveGoalXRoot(options);
 	const warnings: string[] = [];
-	const checkpoint = readCheckpointFocus(root);
+	const focusedId = options.focus?.focusedGoalId ?? null;
 	const ledgerPath = path.join(root, "goal_events.jsonl");
 	const ledgerText = readTail(ledgerPath, options.maxLedgerBytes ?? 512 * 1024);
-	if (ledgerText === undefined) {
-		// No ledger: still report a focused goal if the record exists, but never guess focus.
-		return {
-			available: checkpoint.focusedGoalId !== null || fs.existsSync(root),
-			focused: false,
-			openGoalCount: countOpenGoals(root),
-			progress: { completed: 0, total: 0, percentage: 0 },
-			audit: EMPTY_AUDIT,
-			unfocusedOpen: countOpenGoals(root),
-			storageRoot: root,
-			warnings,
-		};
-	}
-	const { events, malformed } = parseLedger(ledgerText);
-	if (malformed > 0)
-		warnings.push(`${malformed} malformed ledger line${malformed === 1 ? "" : "s"} ignored.`);
-	const focusedId = deriveGoalXFocus(events, checkpoint);
 	const openGoalCount = countOpenGoals(root);
 	const base: GoalXView = {
-		available: true,
+		available: ledgerText !== undefined || fs.existsSync(root),
 		focused: focusedId !== null,
 		openGoalCount,
 		progress: { completed: 0, total: 0, percentage: 0 },
@@ -598,18 +606,22 @@ export function readGoalXView(options: GoalXViewOptions): GoalXView {
 		storageRoot: root,
 		warnings,
 	};
+	// A missing ledger only means no audit history yet; the focused goal record is still readable.
+	const parsed = ledgerText === undefined ? { events: [], malformed: 0 } : parseLedger(ledgerText);
+	const { events, malformed } = parsed;
+	if (malformed > 0)
+		warnings.push(`${malformed} malformed ledger line${malformed === 1 ? "" : "s"} ignored.`);
 	if (!focusedId) return base;
 	const loaded = loadFocusedGoal(root, focusedId);
 	warnings.push(...loaded.warnings);
 	const goal = loaded.goal;
 	if (!goal) {
-		// Focused id without a matching record: Goal X is mid-write or archived it.
-		return { ...base, focused: true, warnings };
+		// Focused id without a matching record: Goal X is mid-write, archived it, or the root differs.
+		return base;
 	}
 	const currentTask = deriveGoalXCurrentTask(goal);
 	return {
 		...base,
-		focused: true,
 		goal,
 		...(currentTask ? { currentTask } : {}),
 		progress: deriveGoalXProgress(goal),
@@ -622,24 +634,41 @@ export function readGoalXView(options: GoalXViewOptions): GoalXView {
  * stamp changed, so callers may invoke it from a render path without repeated I/O.
  */
 export function createGoalXReader(options: GoalXReaderOptions): GoalXReader {
-	const root = resolveGoalXRoot(options);
-	const ledgerPath = path.join(root, "goal_events.jsonl");
-	const checkpointPath = path.join(root, ".goal-ledger-checkpoint.json");
-	let cached: { view: GoalXView; stamps: [FileStamp | undefined, FileStamp | undefined] } | undefined;
+	let root = resolveGoalXRoot(options);
+	const focusOf = (): GoalXFocus | undefined => options.getFocus?.() ?? options.focus;
+	let ledgerPath = path.join(root, "goal_events.jsonl");
+	let cached: { view: GoalXView; stamp: FileStamp | undefined; focusKey: string } | undefined;
 	let disposed = false;
 	let watcher: fs.FSWatcher | undefined;
 	let timer: ReturnType<typeof setTimeout> | undefined;
 
 	const read = (): GoalXView => {
-		const stamps: [FileStamp | undefined, FileStamp | undefined] = [stamp(ledgerPath), stamp(checkpointPath)];
-		if (cached && sameStamp(cached.stamps[0], stamps[0]) && sameStamp(cached.stamps[1], stamps[1]))
-			return cached.view;
-		const view = readGoalXView(options);
-		cached = { view, stamps };
+		const focus = focusOf();
+		const resolvedOptions: GoalXViewOptions = focus === undefined ? options : { ...options, focus };
+		const nextRoot = resolveGoalXRoot(resolvedOptions);
+		if (nextRoot !== root) {
+			// A session may switch to an external goal root; re-target the watcher lazily.
+			root = nextRoot;
+			ledgerPath = path.join(root, "goal_events.jsonl");
+			watch();
+			cached = undefined;
+		}
+		const stampNow = stamp(ledgerPath);
+		const focusKey = `${focus?.focusedGoalId ?? ""}|${focus?.storageRoot ?? ""}`;
+		if (cached && sameStamp(cached.stamp, stampNow) && cached.focusKey === focusKey) return cached.view;
+		const view = readGoalXView(resolvedOptions);
+		cached = { view, stamp: stampNow, focusKey };
 		return view;
 	};
 
-	if (options.watch !== false) {
+	function watch(): void {
+		if (options.watch === false) return;
+		try {
+			watcher?.close();
+		} catch {
+			// A closed watcher is not an error worth surfacing.
+		}
+		watcher = undefined;
 		try {
 			watcher = fs.watch(root, { persistent: false }, () => {
 				if (disposed) return;
@@ -654,13 +683,19 @@ export function createGoalXReader(options: GoalXReaderOptions): GoalXReader {
 					(timer as { unref: () => void }).unref();
 			});
 			watcher.on("error", () => {
-				watcher?.close();
+				try {
+					watcher?.close();
+				} catch {
+					// Ignore close failures on an errored watcher.
+				}
 				watcher = undefined;
 			});
 		} catch {
 			watcher = undefined;
 		}
 	}
+
+	watch();
 
 	return {
 		view: () => (disposed ? { ...EMPTY_VIEW, storageRoot: root } : read()),

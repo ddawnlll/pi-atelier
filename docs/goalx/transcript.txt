@@ -1,0 +1,1266 @@
+
+=== 3. focused goal ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-6fDqOK         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 3. focused goal ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 4. explicit current task ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ▶ task-3 Delivery          │
+  │ ○ Final self-audit         │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 5. task completion ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 6. goal switch ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 7-8. audit running / decision pending ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  │ AUDITOR · VERIFYING        │
+  │ ◉ Objective                │
+  │ ○ Task evidence            │
+  │ ○ Contracts                │
+  │ ○ Workspace                │
+  │ ○ Final decision           │
+  │ stage detail not persisted │
+  │ Decision: PENDING          │
+  │ verdict not available yet  │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 9. approved ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  │ AUDIT · APPROVED           │
+  │ ✓ Objective                │
+  │ ✓ Task evidence            │
+  │ ✓ Contracts                │
+  │ ✓ Workspace                │
+  │ ✓ Final decision           │
+  │ Decision: APPROVED         │
+  │ Goal complete              │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 10. changes requested ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Third goal                 │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  │ AUDIT · CHANGES NEEDED     │
+  │ ✓ Objective                │
+  │ ✓ Task evidence            │
+  │ ✓ Contracts                │
+  │ ✓ Workspace                │
+  │ ✕ Final decision           │
+  │ Decision: CHANGES REQUESTE[0m │
+  │ - replay invariant         │
+  │ - test receipt             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 11. return to goal mode ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 12. session reload ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-Q5Q3x4         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 13. resize 24..60 columns: no overflow ===
+widths observed: min=32 max=32
+
+=== 3. focused goal ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-tz1VeM         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 4. explicit current task ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ▶ task-3 Delivery          │
+  │ ○ Final self-audit         │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-tz1VeM         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 5. task completion ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-tz1VeM         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 3. focused goal ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-thgRtL         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 4. explicit current task ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ▶ task-3 Delivery          │
+  │ ○ Final self-audit         │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-thgRtL         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 5. task completion ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-thgRtL         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 6. goal switch ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-thgRtL         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 3. focused goal ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-BuMZa7         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 4. explicit current task ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ▶ task-3 Delivery          │
+  │ ○ Final self-audit         │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-BuMZa7         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 5. task completion ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-BuMZa7         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 6. goal switch ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-BuMZa7         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 3. focused goal ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 4. explicit current task ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ▶ task-3 Delivery          │
+  │ ○ Final self-audit         │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 5. task completion ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 6. goal switch ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 7-8. audit running / decision pending ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  │ AUDITOR · VERIFYING        │
+  │ Checks: not persisted      │
+  │ Decision: PENDING          │
+  │ no verdict yet             │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 9. approved ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Second goal                │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  │ AUDIT · APPROVED           │
+  │ ✓ Final decision           │
+  │ Decision: APPROVED         │
+  │ Goal complete              │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 10. changes requested ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Third goal                 │
+  │ Progress  1/3 · 33%        │
+  │ ███░░░░░                   │
+  │ ~ task-2 Final self-audit  │
+  │   inferred focus           │
+  │ ○ Delivery                 │
+  │ ✓ 1 done                   │
+  │   ✓ Audit core             │
+  │ AUDIT · CHANGES NEEDED     │
+  │ ✕ Final decision           │
+  │ Decision: CHANGES REQUESTE[0m │
+  │ - replay invariant         │
+  │ - test receipt             │
+  │ Goal remains open          │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 11. return to goal mode ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 12. session reload ===
+  ╭─ ✦ GOAL X ─────────────────╮
+  │ RUNNING · AUTO             │
+  │ Make v8-next auditable     │
+  │ Progress  2/3 · 67%        │
+  │ █████░░░                   │
+  │ ~ task-3 Delivery          │
+  │   inferred focus           │
+  │ ✓ 2 done                   │
+  │   ✓ Audit core             │
+  │   ✓ Final self-audit       │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ CONTEXT ────────────────╮
+  │ ▎░░░░░░░░░░░░░░░░░    1.2% │
+  │ Tokens         1.2k / 100k │
+  ╰────────────────────────────╯
+                                
+  ╭─ ✦ WORKSPACE ──────────────╮
+  │ atelier-e2e-SLdcze         │
+  │  main                     │
+  │ ~/AppData/Local/Temp/ateli[0m │
+  │ Git unavailable            │
+  │ History          1 entries │
+  │ Storage          Temporary │
+  ╰────────────────────────────╯
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+
+=== 13. resize 24..60 columns: no overflow ===
+widths observed: min=32 max=32

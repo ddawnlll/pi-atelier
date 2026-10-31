@@ -12,7 +12,7 @@ import { visibleWidth } from "@earendil-works/pi-tui";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_CONFIG } from "../src/config.js";
 import { buildGoalXPanel, GOALX_PANEL_ID } from "../src/goalx-panel.js";
-import { createGoalXReader, readGoalXView } from "../src/goalx.js";
+import { createGoalXReader, readGoalXView, type GoalXFocus } from "../src/goalx.js";
 import { EMPTY_RUN_ACTIVITY } from "../src/run-activity.js";
 import { buildSidebarSnapshot, renderSidebarLines } from "../src/sidebar.js";
 import type { AtelierState, SidebarPanelLayout } from "../src/types.js";
@@ -54,8 +54,10 @@ const LAYOUT: SidebarPanelLayout = [
 ];
 const config = { ...DEFAULT_CONFIG, sidebarPanelLayout: LAYOUT };
 
+let sessionFocus: GoalXFocus = { focusedGoalId: null };
+
 function renderGoalX(cwd: string, width = 32, height = 40): string[] {
-	const view = readGoalXView({ cwd });
+	const view = readGoalXView({ cwd, focus: sessionFocus });
 	const panel = { ...buildGoalXPanel(view), source: "pi-atelier" };
 	const snapshot = buildSidebarSnapshot({
 		state,
@@ -116,7 +118,6 @@ describe.skipIf(!enabled)("goal x end-to-end scenario", () => {
 		const cwd = mkdtempSync(join(tmpdir(), "atelier-e2e-"));
 		const root = writeGoal(cwd, { id: "goal-a", objective: "Make v8-next auditable" });
 		const ledger = join(root, "goal_events.jsonl");
-		const steps: Array<[string, () => void, (text: string) => void]> = [];
 		const widths: number[] = [];
 
 		const render = (): string => {
@@ -131,11 +132,8 @@ describe.skipIf(!enabled)("goal x end-to-end scenario", () => {
 
 		try {
 			// 1-3: startup, Goal X init, synthetic goal focused.
-			writeFileSync(
-				ledger,
-				`${JSON.stringify({ type: "goal_focused", goalId: "goal-a", at: "2026-01-01T00:00:00.000Z" })}\n`,
-			);
-			steps.push(["startup + focus", () => {}, (text) => expect(text).toContain("GOAL X")]);
+			writeFileSync(ledger, "");
+			sessionFocus = { focusedGoalId: "goal-a" };
 
 			// 4: current-task change from the agent.
 			const text1 = render();
@@ -167,10 +165,7 @@ describe.skipIf(!enabled)("goal x end-to-end scenario", () => {
 
 			// 6: goal switching.
 			writeGoal(cwd, { id: "goal-b", objective: "Second goal", currentTaskId: "task-1" });
-			appendFileSync(
-				ledger,
-				`${JSON.stringify({ type: "goal_focused", goalId: "goal-b", at: "2026-01-01T00:01:00.000Z" })}\n`,
-			);
+			sessionFocus = { focusedGoalId: "goal-b" };
 			const switched = render();
 			expect(switched).toContain("Second goal");
 			log(`\n=== 6. goal switch ===\n${switched}`);
@@ -188,6 +183,8 @@ describe.skipIf(!enabled)("goal x end-to-end scenario", () => {
 			expect(auditing).toContain("AUDITOR · VERIFYING");
 			expect(auditing).toContain("Decision: PENDING");
 			expect(auditing).not.toContain("APPROVED");
+			expect(auditing).toContain("Checks: not persisted");
+			expect(auditing).not.toContain("✓ Objective");
 			log(`\n=== 7-8. audit running / decision pending ===\n${auditing}`);
 
 			// 9: approved.
@@ -202,10 +199,7 @@ describe.skipIf(!enabled)("goal x end-to-end scenario", () => {
 
 			// 10: rejected on a new goal.
 			writeGoal(cwd, { id: "goal-c", objective: "Third goal" });
-			appendFileSync(
-				ledger,
-				`${JSON.stringify({ type: "goal_focused", goalId: "goal-c", at: "2026-01-01T00:04:00.000Z" })}\n`,
-			);
+			sessionFocus = { focusedGoalId: "goal-c" };
 			appendFileSync(
 				ledger,
 				`${JSON.stringify({ type: "audit_result", goalId: "goal-c", verdict: "disapproved", report: "Missing evidence:\n- replay invariant\n- test receipt", at: "2026-01-01T00:05:00.000Z" })}\n`,
@@ -213,20 +207,19 @@ describe.skipIf(!enabled)("goal x end-to-end scenario", () => {
 			const rejected = render();
 			expect(rejected).toContain("CHANGES NEEDED");
 			expect(rejected).toContain("- replay invariant");
+			expect(rejected).toContain("Goal remains open");
+			expect(rejected).not.toContain("✓ Task evidence");
 			log(`\n=== 10. changes requested ===\n${rejected}`);
 
 			// 11: back to goal mode (new focus, no audit yet).
-			appendFileSync(
-				ledger,
-				`${JSON.stringify({ type: "goal_focused", goalId: "goal-a", at: "2026-01-01T00:06:00.000Z" })}\n`,
-			);
+			sessionFocus = { focusedGoalId: "goal-a" };
 			const back = render();
 			expect(back).toContain("Progress");
 			expect(back).not.toContain("AUDITOR");
 			log(`\n=== 11. return to goal mode ===\n${back}`);
 
 			// 12: session reload — a fresh reader sees the same state.
-			const reader = createGoalXReader({ cwd, watch: false });
+			const reader = createGoalXReader({ cwd, watch: false, getFocus: () => sessionFocus });
 			expect(reader.view().goal?.id).toBe("goal-a");
 			reader.dispose();
 			const reloaded = render();
@@ -243,6 +236,5 @@ describe.skipIf(!enabled)("goal x end-to-end scenario", () => {
 		} finally {
 			rmSync(cwd, { recursive: true, force: true });
 		}
-		expect(steps.length).toBe(1);
 	});
 });

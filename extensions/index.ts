@@ -19,7 +19,7 @@ import { AtelierEditor } from "../src/editor.js";
 import { type AtelierFooterComponent, createFooterComponent } from "../src/footer.js";
 import { createImageCompositorBinding } from "../src/image-compositor.js";
 import { buildGoalXPanel, GOALX_PANEL_ID } from "../src/goalx-panel.js";
-import { createGoalXReader, type GoalXReader } from "../src/goalx.js";
+import { createGoalXReader, type GoalXReader, readSessionGoalXFocus } from "../src/goalx.js";
 import { openAtelierControlCenter, openDisplaySettingsWorkspace, sidebarStatusLabel } from "../src/menu.js";
 import type { OverlayLifetime } from "../src/overlay-lifecycle.js";
 import {
@@ -816,6 +816,8 @@ export default function atelierExtension(
 		cleanup.push(() => panelRegistry.dispose());
 		const goalX = createGoalXReader({
 			cwd: ctx.cwd,
+			// Session focus lives in Goal X's `pi-goal-focus` session entries, never in the ledger.
+			getFocus: () => readSessionGoalXFocus(ctx.sessionManager.getBranch()),
 			onChange: () => {
 				const current = activeSession;
 				if (!current || current.token !== token) return;

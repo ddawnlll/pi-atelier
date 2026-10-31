@@ -6,13 +6,14 @@ import {
 	createGoalXReader,
 	deriveGoalXAudit,
 	deriveGoalXCurrentTask,
-	deriveGoalXFocus,
 	deriveGoalXProgress,
 	extractGoalXFindings,
 	findJsonObjectEnd,
 	parseGoalXRecord,
 	readGoalXView,
+	readSessionGoalXFocus,
 	resolveGoalXRoot,
+	type GoalXFocus,
 	type GoalXLedgerEvent,
 } from "../src/goalx.js";
 
@@ -30,13 +31,15 @@ function goalsDir(cwd: string): string {
 	return root;
 }
 
+const focusOn = (id: string | null, storageRoot?: string): GoalXFocus =>
+	storageRoot ? { focusedGoalId: id, storageRoot } : { focusedGoalId: id };
+
 interface GoalFixtureOptions {
 	id?: string;
 	objective?: string;
 	status?: string;
 	currentTaskId?: string;
 	tasks?: unknown[];
-	autoContinue?: boolean;
 	pauseReason?: string;
 }
 
@@ -46,9 +49,8 @@ function goalContent(options: GoalFixtureOptions = {}): string {
 		id: options.id ?? "goal-1",
 		objective: options.objective ?? "Ship the goal-focused sidebar",
 		status: options.status ?? "active",
-		autoContinue: options.autoContinue ?? true,
+		autoContinue: true,
 		usage: { tokensUsed: 1200, activeSeconds: 60 },
-		sisyphus: false,
 		createdAt: "2026-01-01T00:00:00.000Z",
 		updatedAt: "2026-01-01T00:10:00.000Z",
 		...(options.pauseReason ? { pauseReason: options.pauseReason } : {}),
@@ -68,26 +70,16 @@ function goalContent(options: GoalFixtureOptions = {}): string {
 }
 
 function writeGoal(cwd: string, options: GoalFixtureOptions = {}): void {
-	const root = goalsDir(cwd);
 	writeFileSync(
-		join(root, `active_goal_2026010100000000_${options.id ?? "goal-1"}.md`),
+		join(goalsDir(cwd), `active_goal_2026010100000000_${options.id ?? "goal-1"}.md`),
 		goalContent(options),
 	);
 }
 
 function writeLedger(cwd: string, events: unknown[]): void {
-	const root = goalsDir(cwd);
 	writeFileSync(
-		join(root, "goal_events.jsonl"),
-		`${events.map((event) => JSON.stringify(event)).join("\n")}\n`,
-	);
-}
-
-function writeCheckpoint(cwd: string, focusedGoalId: string | null, coveredEvents = 0): void {
-	const root = goalsDir(cwd);
-	writeFileSync(
-		join(root, ".goal-ledger-checkpoint.json"),
-		JSON.stringify({ version: 4, acc: { focusedGoalId }, coveredEvents }),
+		join(goalsDir(cwd), "goal_events.jsonl"),
+		events.map((event) => JSON.stringify(event)).join("\n") + "\n",
 	);
 }
 
@@ -95,11 +87,10 @@ afterEach(() => {
 	for (const dir of roots.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
-const focusEvent = (goalId: string): unknown => ({
-	type: "goal_focused",
-	goalId,
-	reason: "created",
-	at: "2026-01-01T00:00:00.000Z",
+const sessionEntry = (focusedGoalId: unknown, extra: Record<string, unknown> = {}): unknown => ({
+	type: "custom",
+	customType: "pi-goal-focus",
+	data: { version: 1, focusedGoalId, reason: "created", ...extra },
 });
 
 describe("goal file parsing", () => {
@@ -132,6 +123,36 @@ describe("goal file parsing", () => {
 	});
 });
 
+describe("session focus", () => {
+	it("reads the last pi-goal-focus entry", () => {
+		expect(readSessionGoalXFocus([sessionEntry("g1"), sessionEntry("g2")])).toEqual({ focusedGoalId: "g2" });
+	});
+
+	it("honours an explicit unfocus and ignores non-focus entries", () => {
+		expect(readSessionGoalXFocus([sessionEntry("g1"), sessionEntry(null)])).toEqual({ focusedGoalId: null });
+		expect(
+			readSessionGoalXFocus([
+				{ type: "custom", customType: "pi-goal-event", data: { goalId: "g1" } },
+				{ type: "message", customType: "pi-goal-focus", data: { focusedGoalId: "g2" } },
+				{ type: "custom", customType: "pi-goal-focus", data: "nope" },
+			]),
+		).toBeUndefined();
+	});
+
+	it("keeps the storage root recorded with focus", () => {
+		expect(readSessionGoalXFocus([sessionEntry("g1", { storageRoot: "/external/goals" })])).toEqual({
+			focusedGoalId: "g1",
+			storageRoot: "/external/goals",
+		});
+	});
+
+	it("ignores malformed ids instead of guessing", () => {
+		expect(readSessionGoalXFocus([sessionEntry("")])).toBeUndefined();
+		expect(readSessionGoalXFocus([sessionEntry(42)])).toBeUndefined();
+		expect(readSessionGoalXFocus([])).toBeUndefined();
+	});
+});
+
 describe("current task and progress semantics", () => {
 	const goal = parseGoalXRecord(
 		goalContent({
@@ -153,13 +174,18 @@ describe("current task and progress semantics", () => {
 	if (!goal) throw new Error("fixture did not parse");
 
 	it("uses an explicit currentTaskId when it references a pending task", () => {
-		const view = deriveGoalXCurrentTask({ ...goal, currentTaskId: "task-3" });
-		expect(view).toMatchObject({ id: "task-3", inferred: false });
+		expect(deriveGoalXCurrentTask({ ...goal, currentTaskId: "task-3" })).toMatchObject({
+			id: "task-3",
+			inferred: false,
+		});
 	});
 
 	it("accepts a nested subtask id", () => {
-		const view = deriveGoalXCurrentTask({ ...goal, currentTaskId: "task-2-2" });
-		expect(view).toMatchObject({ id: "task-2-2", depth: 1, inferred: false });
+		expect(deriveGoalXCurrentTask({ ...goal, currentTaskId: "task-2-2" })).toMatchObject({
+			id: "task-2-2",
+			depth: 1,
+			inferred: false,
+		});
 	});
 
 	it("infers the first pending task when currentTaskId is absent, invalid, or settled", () => {
@@ -196,29 +222,6 @@ describe("current task and progress semantics", () => {
 	});
 });
 
-describe("ledger focus reconstruction", () => {
-	it("starts from the checkpoint and applies later focus events", () => {
-		const events: GoalXLedgerEvent[] = [
-			{ type: "goal_focused", goalId: "a" },
-			{ type: "goal_focused", goalId: "b" },
-		];
-		expect(deriveGoalXFocus(events, { focusedGoalId: "a", coveredEvents: 0 })).toBe("b");
-		expect(deriveGoalXFocus(events, { focusedGoalId: "a", coveredEvents: 2 })).toBe("a");
-	});
-
-	it("clears focus on goal_unfocused and on the focused goal completing", () => {
-		expect(
-			deriveGoalXFocus([{ type: "goal_unfocused" }], { focusedGoalId: "a", coveredEvents: 0 }),
-		).toBeNull();
-		expect(
-			deriveGoalXFocus([{ type: "goal_completed", goalId: "a" }], { focusedGoalId: "a", coveredEvents: 0 }),
-		).toBeNull();
-		expect(
-			deriveGoalXFocus([{ type: "goal_completed", goalId: "b" }], { focusedGoalId: "a", coveredEvents: 0 }),
-		).toBe("a");
-	});
-});
-
 describe("audit derivation", () => {
 	const auditOf = (events: unknown[], goalId = "goal-1") =>
 		deriveGoalXAudit(events as GoalXLedgerEvent[], goalId);
@@ -227,32 +230,38 @@ describe("audit derivation", () => {
 		expect(auditOf([{ type: "goal_focused", goalId: "goal-1" }]).phase).toBe("idle");
 	});
 
-	it("reports a running audit without inventing a percentage", () => {
+	it("reports a running audit without checks or a percentage", () => {
 		const audit = auditOf([{ type: "audit_started", goalId: "goal-1", at: "2026-01-01T00:00:00.000Z" }]);
-		expect(audit.phase).toBe("running");
-		expect(audit.checksKnown).toBe(false);
+		expect(audit).toMatchObject({ phase: "running", checksKnown: false, decision: "pending", checks: [] });
 		expect(audit).not.toHaveProperty("percentage");
-		expect(audit.checks.every((check) => check.estimated)).toBe(true);
 	});
 
-	it("derives approved, disapproved, and error result states from the ledger", () => {
-		expect(
-			auditOf([{ type: "audit_result", goalId: "goal-1", verdict: "approved", report: "<approved/>" }]).phase,
-		).toBe("approved");
+	it("claims only the decision for a result, never per-check passes", () => {
 		const rejected = auditOf([
 			{
 				type: "audit_result",
 				goalId: "goal-1",
 				verdict: "disapproved",
-				report: "Missing:\n- replay invariant\n- test receipt",
+				report: "Missing evidence:\n- replay invariant\n- test receipt",
 			},
 		]);
 		expect(rejected.phase).toBe("disapproved");
+		expect(rejected.decision).toBe("changes_requested");
+		expect(rejected.checks).toEqual([{ id: "decision", label: "Final decision", state: "failed" }]);
 		expect(rejected.findings).toEqual(["replay invariant", "test receipt"]);
-		expect(rejected.checks.find((check) => check.id === "decision")?.state).toBe("failed");
-		expect(
-			auditOf([{ type: "audit_result", goalId: "goal-1", verdict: "error", report: "boom" }]).phase,
-		).toBe("error");
+
+		const approved = auditOf([
+			{ type: "audit_result", goalId: "goal-1", verdict: "approved", report: "<approved/>" },
+		]);
+		expect(approved.checks).toEqual([{ id: "decision", label: "Final decision", state: "passed" }]);
+		expect(approved.decision).toBe("approved");
+	});
+
+	it("never marks a non-decision stage as passed or failed", () => {
+		for (const verdict of ["approved", "disapproved", "error"]) {
+			const audit = auditOf([{ type: "audit_result", goalId: "goal-1", verdict, report: "x" }]);
+			expect(audit.checks.every((check) => check.id === "decision")).toBe(true);
+		}
 	});
 
 	it("keeps the latest audit event and ignores other goals", () => {
@@ -264,9 +273,21 @@ describe("audit derivation", () => {
 		expect(audit.phase).toBe("running");
 	});
 
+	it("tolerates out-of-order and repeated events by using the last one", () => {
+		const audit = auditOf([
+			{ type: "audit_result", goalId: "goal-1", verdict: "approved", report: "a" },
+			{ type: "audit_result", goalId: "goal-1", verdict: "approved", report: "a" },
+			{ type: "audit_result", goalId: "goal-1", verdict: "disapproved", report: "later" },
+		]);
+		expect(audit.phase).toBe("disapproved");
+	});
+
 	it("reports a skipped audit with its reason", () => {
-		const audit = auditOf([{ type: "audit_skipped", goalId: "goal-1", reason: "user_aborted" }]);
-		expect(audit).toMatchObject({ phase: "skipped", reason: "user_aborted" });
+		expect(auditOf([{ type: "audit_skipped", goalId: "goal-1", reason: "user_aborted" }])).toMatchObject({
+			phase: "skipped",
+			reason: "user_aborted",
+			decision: "skipped",
+		});
 	});
 
 	it("extracts at most three findings and skips headers and attribution", () => {
@@ -280,14 +301,13 @@ describe("view reading", () => {
 		const view = readGoalXView({ cwd });
 		expect(view.available).toBe(false);
 		expect(view.focused).toBe(false);
-		expect(view.audit.phase).toBe("idle");
 	});
 
-	it("reads the focused goal, tasks, and audit state", () => {
+	it("reads the session-focused goal, tasks, and audit state", () => {
 		const cwd = workspace();
 		writeGoal(cwd);
-		writeLedger(cwd, [focusEvent("goal-1"), { type: "audit_started", goalId: "goal-1" }]);
-		const view = readGoalXView({ cwd });
+		writeLedger(cwd, [{ type: "audit_started", goalId: "goal-1" }]);
+		const view = readGoalXView({ cwd, focus: focusOn("goal-1") });
 		expect(view.focused).toBe(true);
 		expect(view.goal?.objective).toBe("Ship the goal-focused sidebar");
 		expect(view.currentTask?.id).toBe("task-3");
@@ -295,43 +315,54 @@ describe("view reading", () => {
 		expect(view.audit.phase).toBe("running");
 	});
 
-	it("never auto-selects a goal when the session is explicitly unfocused", () => {
+	it("does not take focus from the ledger, ever", () => {
 		const cwd = workspace();
 		writeGoal(cwd);
-		writeLedger(cwd, [{ type: "goal_unfocused", reason: "user" }]);
+		// Another session focused this goal; this session never did.
+		writeLedger(cwd, [{ type: "goal_focused", goalId: "goal-1" }]);
 		const view = readGoalXView({ cwd });
 		expect(view.focused).toBe(false);
 		expect(view.goal).toBeUndefined();
 		expect(view.unfocusedOpen).toBe(1);
 	});
 
-	it("keeps the checkpoint focus when the ledger has no focus event", () => {
+	it("honours an explicit unfocus despite an existing goal", () => {
 		const cwd = workspace();
 		writeGoal(cwd);
-		writeLedger(cwd, []);
-		writeCheckpoint(cwd, "goal-1");
-		expect(readGoalXView({ cwd }).goal?.id).toBe("goal-1");
+		expect(readGoalXView({ cwd, focus: focusOn(null) }).focused).toBe(false);
 	});
 
-	it("survives a corrupted goal file and reports a warning for malformed ledger lines", () => {
+	it("shows only the session-focused goal from a pool of several", () => {
+		const cwd = workspace();
+		writeGoal(cwd, { id: "goal-a", objective: "First" });
+		writeGoal(cwd, { id: "goal-b", objective: "Second" });
+		const view = readGoalXView({ cwd, focus: focusOn("goal-b") });
+		expect(view.goal?.objective).toBe("Second");
+		expect(view.openGoalCount).toBe(2);
+		expect(view.unfocusedOpen).toBe(1);
+	});
+
+	it("survives a corrupted goal file and reports malformed ledger lines", () => {
 		const cwd = workspace();
 		const root = goalsDir(cwd);
 		writeFileSync(join(root, "active_goal_1_goal-1.md"), "{ this is not json");
-		writeFileSync(join(root, "goal_events.jsonl"), `${JSON.stringify(focusEvent("goal-1"))}\nnot-json\n`);
-		const view = readGoalXView({ cwd });
+		writeFileSync(join(root, "goal_events.jsonl"), "{}\nnot-json\n");
+		const view = readGoalXView({ cwd, focus: focusOn("goal-1") });
 		expect(view.focused).toBe(true);
 		expect(view.goal).toBeUndefined();
 		expect(view.warnings.join(" ")).toContain("malformed");
 	});
 
-	it("respects PI_GOAL_ROOT and the configured goalsRoot", () => {
+	it("respects the session storage root, PI_GOAL_ROOT, and goalsRoot", () => {
 		const cwd = workspace();
 		const external = join(workspace(), "external-goals");
 		mkdirSync(external, { recursive: true });
 		writeFileSync(join(external, "active_goal_1_goal-1.md"), goalContent());
-		writeFileSync(join(external, "goal_events.jsonl"), `${JSON.stringify(focusEvent("goal-1"))}\n`);
+		writeFileSync(join(external, "goal_events.jsonl"), "\n");
+
+		expect(resolveGoalXRoot({ cwd, focus: focusOn("goal-1", external) })).toBe(external);
+		expect(readGoalXView({ cwd, focus: focusOn("goal-1", external) }).goal?.id).toBe("goal-1");
 		expect(resolveGoalXRoot({ cwd, env: { PI_GOAL_ROOT: external } })).toBe(external);
-		expect(readGoalXView({ cwd, env: { PI_GOAL_ROOT: external } }).goal?.id).toBe("goal-1");
 
 		const configured = workspace();
 		mkdirSync(join(configured, ".pi"), { recursive: true });
@@ -364,21 +395,25 @@ describe("view reading", () => {
 			join(root, "goal_events.jsonl"),
 			`${JSON.stringify({ type: "audit_result", goalId: "goal-1", verdict: "approved", report: "ok" })}\n`,
 		);
-		writeCheckpoint(cwd, "goal-1");
-		const view = readGoalXView({ cwd, maxLedgerBytes: 4096 });
+		const view = readGoalXView({ cwd, focus: focusOn("goal-1"), maxLedgerBytes: 4096 });
 		expect(view.audit.phase).toBe("approved");
 		expect(view.goal?.id).toBe("goal-1");
 	});
 });
 
 describe("cached reader", () => {
-	it("re-reads only when an input stamp changes and disposes cleanly", () => {
+	it("re-reads only when a file stamp or the session focus changes", () => {
 		const cwd = workspace();
 		writeGoal(cwd);
-		writeLedger(cwd, [focusEvent("goal-1")]);
-		const reader = createGoalXReader({ cwd, watch: false });
+		writeLedger(cwd, []);
+		let focus: GoalXFocus = focusOn("goal-1");
+		const reader = createGoalXReader({ cwd, watch: false, getFocus: () => focus });
 		const first = reader.view();
+		expect(first.focused).toBe(true);
 		expect(reader.view()).toBe(first);
+		focus = focusOn(null);
+		expect(reader.view().focused).toBe(false);
+		focus = focusOn("goal-1");
 		appendFileSync(
 			join(goalsDir(cwd), "goal_events.jsonl"),
 			`${JSON.stringify({ type: "audit_started", goalId: "goal-1" })}\n`,
@@ -388,13 +423,14 @@ describe("cached reader", () => {
 		expect(reader.view().available).toBe(false);
 	});
 
-	it("notifies once after a watched directory change and stops after dispose", async () => {
+	it("notifies once after a watched change and stops after dispose", async () => {
 		const cwd = workspace();
 		writeGoal(cwd);
-		writeLedger(cwd, [focusEvent("goal-1")]);
+		writeLedger(cwd, []);
 		let changes = 0;
 		const reader = createGoalXReader({
 			cwd,
+			focus: focusOn("goal-1"),
 			onChange: () => {
 				changes += 1;
 			},

@@ -109,13 +109,12 @@ const auditHeadline = (audit: GoalXAudit): Row => {
 function auditRows(audit: GoalXAudit): Row[] {
 	if (audit.phase === "idle") return [];
 	const rows: Row[] = [auditHeadline(audit)];
-	if (audit.checks.length > 0) {
-		rows.push(...audit.checks.map(checkRow));
-		if (!audit.checksKnown) rows.push({ text: "stage detail not persisted", role: "dim" });
-	}
+	// Only the decision is persisted, so only the decision is ever claimed.
+	for (const check of audit.checks) rows.push(checkRow(check));
 	if (audit.phase === "running") {
+		rows.push({ text: "Checks: not persisted", role: "dim" });
 		rows.push({ text: "Decision: PENDING", role: "caution" });
-		rows.push({ text: "verdict not available yet", role: "dim" });
+		rows.push({ text: "no verdict yet", role: "dim" });
 	}
 	if (audit.phase === "approved") {
 		rows.push({ text: "Decision: APPROVED", role: "success" });
@@ -124,14 +123,15 @@ function auditRows(audit: GoalXAudit): Row[] {
 	if (audit.phase === "disapproved") {
 		rows.push({ text: "Decision: CHANGES REQUESTED", role: "error" });
 		for (const finding of audit.findings) rows.push({ text: `- ${cut(finding)}`, role: "warning" });
+		rows.push({ text: "Goal remains open", role: "muted" });
 	}
 	if (audit.phase === "error") {
 		rows.push({ text: "Decision: ERROR", role: "error" });
-		const first = audit.findings[0];
-		rows.push({ text: cut(first ?? "Auditor could not finish"), role: "dim" });
+		rows.push({ text: cut(audit.findings[0] ?? "Auditor could not finish"), role: "dim" });
 	}
 	if (audit.phase === "skipped") {
-		rows.push({ text: `Skipped: ${cut(audit.reason ?? "no reason recorded", 32)}`, role: "dim" });
+		rows.push({ text: "Decision: SKIPPED", role: "dim" });
+		rows.push({ text: `Reason: ${cut(audit.reason ?? "not recorded", 30)}`, role: "dim" });
 	}
 	return rows;
 }

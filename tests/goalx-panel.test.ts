@@ -156,10 +156,8 @@ describe("auditor presentation", () => {
 		audit: {
 			phase: "running",
 			checksKnown: false,
-			checks: [
-				{ id: "objective", label: "Objective", state: "running", estimated: true },
-				{ id: "verification", label: "Task evidence", state: "pending", estimated: true },
-			],
+			checks: [],
+			decision: "pending",
 			findings: [],
 		},
 	});
@@ -168,8 +166,9 @@ describe("auditor presentation", () => {
 		const text = joined(running);
 		expect(text).toContain("AUDITOR · VERIFYING");
 		expect(text).toContain("Decision: PENDING");
-		expect(text).toContain("stage detail not persisted");
+		expect(text).toContain("Checks: not persisted");
 		expect(text).not.toContain("APPROVED");
+		expect(text).not.toContain("✓ Objective");
 		const auditRows = rows(running).slice(rows(running).indexOf("AUDITOR · VERIFYING"));
 		expect(auditRows.join("\n")).not.toContain("%");
 	});
@@ -184,7 +183,8 @@ describe("auditor presentation", () => {
 				audit: {
 					phase: "approved",
 					checksKnown: true,
-					checks: [{ id: "decision", label: "Final decision", state: "passed", estimated: false }],
+					checks: [{ id: "decision", label: "Final decision", state: "passed" }],
+					decision: "approved",
 					verdict: "approved",
 					report: "<approved/>",
 					findings: [],
@@ -201,7 +201,8 @@ describe("auditor presentation", () => {
 				audit: {
 					phase: "disapproved",
 					checksKnown: true,
-					checks: [{ id: "decision", label: "Final decision", state: "failed", estimated: false }],
+					checks: [{ id: "decision", label: "Final decision", state: "failed" }],
+					decision: "changes_requested",
 					verdict: "disapproved",
 					report: "- replay invariant\n- test receipt",
 					findings: ["replay invariant", "test receipt"],
@@ -209,6 +210,7 @@ describe("auditor presentation", () => {
 			}),
 		);
 		expect(text).toContain("CHANGES NEEDED");
+		expect(text).toContain("Goal remains open");
 		expect(text).toContain("- replay invariant");
 		expect(text).toContain("- test receipt");
 	});
@@ -220,7 +222,8 @@ describe("auditor presentation", () => {
 					audit: {
 						phase: "error",
 						checksKnown: true,
-						checks: [],
+						checks: [{ id: "decision", label: "Final decision", state: "failed" }],
+						decision: "error",
 						verdict: "error",
 						findings: ["provider failed"],
 					},
@@ -230,10 +233,17 @@ describe("auditor presentation", () => {
 		expect(
 			joined(
 				view({
-					audit: { phase: "skipped", checksKnown: false, checks: [], findings: [], reason: "user_aborted" },
+					audit: {
+						phase: "skipped",
+						checksKnown: false,
+						checks: [],
+						decision: "skipped",
+						findings: [],
+						reason: "user_aborted",
+					},
 				}),
 			),
-		).toContain("Skipped: user_aborted");
+		).toContain("Reason: user_aborted");
 	});
 });
 

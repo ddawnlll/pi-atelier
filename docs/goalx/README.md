@@ -9,14 +9,16 @@ scheduling and audit verdicts.
 
 ## What it does
 
-- Reads the focused goal record, the append-only ledger and the ledger checkpoint from Goal X's
-  storage root (default `<cwd>/.pi/goals`, overridable through `goalsRoot` /
+- Reads the session's `pi-goal-focus` entry for focus (Goal X stores focus in the session
+  transcript, not in the project ledger), then the focused goal record and the append-only ledger
+  from Goal X's storage root (default `<cwd>/.pi/goals`, overridable through `goalsRoot` /
   `PI_GOAL_ROOT`).
 - Publishes a `goalx:goal` sidebar panel through Atelier's existing `pi-atelier:sidebar-panels`
   protocol.
 - Never writes Goal X files, never calls a model, never imports Goal X's internal modules.
 - Stays inert when Goal X is absent or when the session has no focused goal. A goal is **never
-  auto-selected** just because it is the only one in the pool.
+  auto-selected** just because it is the only one in the pool, and another session's focus never
+  becomes this session's focus.
 
 ## Enabling the goal-focused layout
 
@@ -67,16 +69,18 @@ Switching back to `editorial`, `minimal` or `classic` restores the original pane
 | first pending task fallback | `~ task-5 Title` + `inferred focus` — never presented as executing |
 | `subtasks` | `subtasks 1/2` and the next pending subtask |
 | `pauseReason` / `pauseSuggestedAction` | `Paused:` / `Blocker:` rows |
-| `audit_started` | `AUDITOR · VERIFYING`, `Decision: PENDING`, `stage detail not persisted` |
+| `audit_started` | `AUDITOR · VERIFYING`, `Checks: not persisted`, `Decision: PENDING` |
 | `audit_result: approved` | `AUDIT · APPROVED`, `Decision: APPROVED`, `Goal complete` |
-| `audit_result: disapproved` | `AUDIT · CHANGES NEEDED` plus up to three findings from the report |
+| `audit_result: disapproved` | `AUDIT · CHANGES NEEDED`, up to three findings, `Goal remains open` |
 | `audit_result: error` | `AUDIT · ERROR` plus the report's first line |
 | `audit_skipped` | `AUDIT · SKIPPED` plus the recorded reason |
 
 ### Honesty rules
 
 - No percentage is invented. Goal X persists no intermediate audit progress, so the panel never
-  shows an audit percentage; it says the stage detail is not persisted instead.
+  shows an audit percentage; it says the check detail is not persisted instead.
+- Only the **decision** check is ever reported, because the verdict is the only per-check fact
+  Goal X records. Other stages are never marked passed or failed.
 - A pending decision is never rendered as approved. Approved/changes-requested/error come only
   from an `audit_result` ledger event.
 - A pending task is never marked as executing: explicit and inferred focus are visually distinct.
@@ -108,7 +112,8 @@ PI_E2E=1 npx vitest run tests/e2e-goalx.test.ts        # full lifecycle on a tem
 PI_REAL_GOALS_ROOT=~/.pi/goals npx vitest run tests/e2e-real-data.test.ts
 ```
 
-`tests/goalx.test.ts` covers parsing, focus, current-task semantics, progress and audit derivation.
+`tests/goalx.test.ts` covers parsing, session focus, current-task semantics, progress and audit
+derivation. `tests/extension-goalx.test.ts` mounts the real extension and reads the rendered sidebar.
 `tests/goalx-panel.test.ts` covers rendering and width behaviour. `tests/goalx-ui.test.ts` covers
 load order, unload/reload, plain vs colored rendering and small heights. `tests/goal-preset.test.ts`
 covers the layout preset. `tests/goalx-widget-shim.test.ts` covers the optional widget patch.
@@ -121,6 +126,8 @@ covers the layout preset. `tests/goalx-widget-shim.test.ts` covers the optional 
 2. **Audit summary stays in the conversation.** The sidebar is compact by design; the full auditor
    report remains Goal X's own dashboard/notification.
 3. **Widget is not hidden automatically** (see above).
+6. **Audit stage detail is unavailable.** Goal X persists start + verdict only; no per-check or
+   workspace-inspection signal exists to display.
 4. **Attribution of findings** follows Goal X's deterministic extraction: findings are bullets or
    leading lines from the report, capped at three. Vague prose is not converted into pass/fail.
 5. **Windows baseline failures** in `npm test` (`run-activity` POSIX-home assertions and a
