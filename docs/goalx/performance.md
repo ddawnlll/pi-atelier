@@ -35,8 +35,8 @@ A run with that command recorded 1.6491 / 0.9688 / 2.2758 ms at 0/8/64 panels
 - `SidebarPanelRegistry.register` compares contributions and returns without calling `onChange`
   when the content is identical, so an unchanged view cannot schedule another render.
 - The ledger read is bounded (512 KiB tail, configurable) and only parsed on stamp change.
-- One `readdir` per refresh lists the goal files, once to count open goals and once to locate the
-  focused record by parsing candidates until the id matches (the record name includes the id, but
-  the directory is still listed). No goal *content* is read for goals that are not focused: the
-  scan stops at the first id match and the parse cache is keyed by `(mtime, size)`.
+- One `readdir` per refresh counts open goals, and `loadFocusedGoal` lists the directory again and
+  reads + parses each active goal file until the id matches; there is **no per-file parse cache**,
+  only the whole-view `(ledger mtime, size)` stamp. The cost is one file read per goal until the
+  focused record is reached, on a stamp change only.
 - No model requests, no prompt injection, no new runtime dependency.

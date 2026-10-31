@@ -1,0 +1,19 @@
+                 │ AUDIT · CHANGES NEEDED
+                │ ✕ Final decision           │
+                │ Decision: CHANGES REQUESTE │
+                │ - replay invariant missing │
+                │ Goal remains open          │
+                ╰────────────────────────────╯
+
+                ╭─ ✦ CONTEXT ────────────────╮
+                │ █████▎░░░░░░░░░░░░   29.4% │
+                │ Tokens         294k / 1.0M │
+                ╰────────────────────────────╯
+
+                ╭─ ✦ WORKSPACE ──────────────╮
+                │ src                        │
+                │ ~/Documents/src            │
+                │ not a Git repository       │
+                │ History        608 entries │
+                │ Storage              Saved │
+ ["Second       ╰────────────────────────────╯

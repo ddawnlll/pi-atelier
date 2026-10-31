@@ -34,8 +34,8 @@ warnings   []
 | `npm run typecheck` | pass |
 | `npm run format:check` | pass (86 files) |
 | `npm run check:pack` | pass (38 files) |
-| `npm test` | 565 passed, 3 failed, 2 skipped — the 3 are the pre-existing Windows baseline failures (`run-activity` POSIX-home assertions, `subagent-usage` symlink `EPERM`) reproduced on `upstream/main` |
-| `npm run check` | fails at `format:check` locally only because biome also scans fork-local benchmark artifacts; with those moved under `docs/goalx/bench` the individual gates pass. `check:audit` requires registry access and was not part of the recorded run |
+| `npm test` | 568 passed, 3 failed, 2 skipped — the 3 are the pre-existing Windows baseline failures (`run-activity` POSIX-home assertions, `subagent-usage` symlink `EPERM`) reproduced on `upstream/main` |
+| `npm run check` | `typecheck`, `format:check` (89 files), `test`, `check:pack` all pass individually. `check:audit` needs registry access and was not part of the recorded run |
 | `npm run bench:sidebar` | no regression (see `performance.md`) |
 
 ### Isolated Pi process
@@ -61,11 +61,31 @@ Two runs, both against the **installed host** (Pi 1.4.0), with an isolated
    the completed task rows and `AUDIT · CHANGES NEEDED`, next to `CONTEXT`. This satisfies the
    "sidebar verified with a test goal" criterion in a live process.
 
+### Live scenario walk (isolated Pi, real TUI)
+
+`scripts/e2e/live-tui-scenario.py` drives the installed Pi 1.4.0 in a sized ConPTY against a copy of
+a real session and a paused copy of the goal root (nothing real is written), and walks the whole
+lifecycle in the running TUI. Result: **10/10 steps pass** —
+
+| Step | Observed |
+|---|---|
+| 01 focused goal | `GOAL X`, `PAUSED`, `Progress`, real objective |
+| 02 task change | new `live-task` appears in the panel |
+| 02b task completed | progress row updates |
+| 03 audit running | `AUDITOR · VERIFYING`, `Decision: PENDING` |
+| 04 approved | `AUDIT · APPROVED`, `Decision: APPROVED` |
+| 05 changes requested | `AUDIT · CHANGES NEEDED` |
+| 06 goal switch | panel switches to the second focused goal |
+| 07 session reload | panel renders the focused goal again |
+| 08-09 resize | 100x30 and 120x40 both render `GOAL X` |
+
+Frames and PNG renderings of the captured frames: `docs/goalx/live-scenario/` (plus
+`results.json`). The PNGs are images generated from the real captured text, labelled as such.
+
 ### Still not covered by a live TUI
 
-Pixel-level appearance only: colours, borders and repaint smoothness were observed as text frames,
-not images, and no screenshot file is committed (see `live-tui-frame.txt`, which is the exact frame
-with ANSI stripped). The widget-hidden state also needs a restart, so it remains unit-tested.
+Pixel-level fidelity of a *photographic* screenshot (the PNGs are renderings of captured text, not
+screen grabs), and the widget-hidden state, which needs a restart and remains unit-tested.
 
 ## Reproduce
 

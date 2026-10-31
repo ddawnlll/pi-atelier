@@ -1,0 +1,30 @@
+
+
+                ╭─ ✦ GOAL X ─────────────────╮
+                │ PAUSED                     │
+                │ Second live goal           │
+                │ Progress 14/14 · 100%      │
+                │ ████████                   │
+                │ ✓ 14 done · 11 hidden      │
+                │ ✓ Install the validated fo │
+                │ ✓ Write docs, push branch  │
+                │ ✓ Live scenario task       │
+                ╰────────────────────────────╯
+
+                ╭─ ✦ CONTEXT ────────────────╮
+                │ █████▎░░░░░░░░░░░░   29.4% │
+                │ Tokens         294k / 1.0M │
+                ╰────────────────────────────╯
+
+                ╭─ ✦ WORKSPACE ──────────────╮
+                │ src                        │
+                │ ~/Documents/src            │
+                │ inspecting…                │
+                │ History        609 entries │
+                │ Storage              Saved │
+                ╰────────────────────────────╯
+
+
+
+
+ ["Second

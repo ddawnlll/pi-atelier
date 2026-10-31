@@ -1,0 +1,30 @@
+
+
+                ╭─ ✦ GOAL X ─────────────────╮
+                │ PAUSED                     │
+                │ Second live goal           │
+                │ Progress 14/14 · 100%      │
+                │ ████████                   │
+ario second     │ ✓ 14 done · 11 hidden      │
+goal"])')       │ ✓ Install the validated fo │
+ scenario       │ ✓ Write docs, push branch  │
+Second live     │ ✓ Live scenario task       │
+                ╰────────────────────────────╯
+
+                ╭─ ✦ CONTEXT ────────────────╮
+                │ █████▎░░░░░░░░░░░░   29.4% │
+--/*.jsonl |    │ Tokens         294k / 1.0M │
+                ╰────────────────────────────╯
+-out
+                ╭─ ✦ WORKSPACE ──────────────╮
+                │ src                        │
+i-atelier"      │ ~/Documents/src            │
+                │ inspecting…                │
+ --cli          │ History        609 entries │
+es/@earendil-   │ Storage              Saved │
+ -14 (timeout   ╰────────────────────────────╯
+
+
+
+ 29.4% ──────╮
+             │

@@ -128,7 +128,7 @@ covers the layout preset. `tests/goalx-widget-shim.test.ts` covers the optional 
 2. **Audit summary stays in the conversation.** The sidebar is compact by design; the full auditor
    report remains Goal X's own dashboard/notification.
 3. **Widget is not hidden automatically** (see above).
-6. **Audit stage detail is unavailable.** Goal X persists start + verdict only; no per-check or
+4. **Audit stage detail is unavailable.** Goal X persists start + verdict only; no per-check or
    workspace-inspection signal exists to display.
 4. **Attribution of findings** follows Goal X's deterministic extraction: findings are bullets or
    leading lines from the report, capped at three. Vague prose is not converted into pass/fail.
