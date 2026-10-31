@@ -57,6 +57,32 @@ export const DEFAULT_SIDEBAR_PANEL_LAYOUT: SidebarPanelLayout = BUILTIN_SIDEBAR_
 	visible: true,
 }));
 
+/**
+ * Goal-first layout: the Goal X panel leads, CONTEXT and WORKSPACE stay compact,
+ * and the large AGENT/ACTIVITY/USAGE/TOOLS panels are hidden but never removed —
+ * they remain one toggle away in Settings.
+ */
+export const GOAL_FOCUS_HIDDEN_PANELS: ReadonlySet<string> = new Set([
+	"agent",
+	"activity",
+	"alerts",
+	"todos",
+	"prefill",
+	"usage",
+	"subagents",
+	"tools",
+]);
+
+export const GOAL_FOCUS_SIDEBAR_PANEL_LAYOUT: SidebarPanelLayout = [
+	{ id: "goalx:goal", visible: true },
+	{ id: "context", visible: true },
+	{ id: "workspace", visible: true },
+	...BUILTIN_SIDEBAR_PANEL_IDS.filter((id) => id !== "context" && id !== "workspace").map((id) => ({
+		id,
+		visible: !GOAL_FOCUS_HIDDEN_PANELS.has(id),
+	})),
+];
+
 const BUILTIN_IDS = new Set<string>(BUILTIN_SIDEBAR_PANEL_IDS);
 /** Built-in panel ids as plain strings, and their position in product order. */
 const BUILTIN_PANEL_ORDER: readonly string[] = BUILTIN_SIDEBAR_PANEL_IDS;

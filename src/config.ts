@@ -12,7 +12,11 @@ import {
 	PRODUCT_SEGMENT_ORDER,
 } from "./display.js";
 import { SIDEBAR_PREFILL_VIEWS } from "./prefill.js";
-import { DEFAULT_SIDEBAR_PANEL_LAYOUT, normalizeSidebarPanelLayout } from "./sidebar-panels.js";
+import {
+	DEFAULT_SIDEBAR_PANEL_LAYOUT,
+	GOAL_FOCUS_SIDEBAR_PANEL_LAYOUT,
+	normalizeSidebarPanelLayout,
+} from "./sidebar-panels.js";
 import { DEFAULT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH } from "./split-pane.js";
 import { clamp, errorMessage, isRecord } from "./text.js";
 import type {
@@ -104,13 +108,23 @@ function parseSidebarLayout(value: unknown, warnings: string[]): SidebarPanelLay
 	return normalizeSidebarPanelLayout(entries, warnings);
 }
 
-function resolveSidebarLayout(layers: DisplayLayerState): { layout: SidebarPanelLayout; warnings: string[] } {
+/** Presets that also define a sidebar panel layout. Explicit user layouts always win. */
+const PRESET_SIDEBAR_LAYOUTS: Partial<Record<PresetName, SidebarPanelLayout>> = {
+	goalfocus: GOAL_FOCUS_SIDEBAR_PANEL_LAYOUT,
+};
+
+function resolveSidebarLayout(
+	layers: DisplayLayerState,
+	preset: PresetName,
+): { layout: SidebarPanelLayout; warnings: string[] } {
 	const warnings: string[] = [];
 	const user = layers.user;
 	if (user && "sidebarPanelLayout" in user) {
 		const parsed = parseSidebarLayout(user.sidebarPanelLayout, warnings);
 		return { layout: parsed ?? cloneLayout(DEFAULT_CONFIG.sidebarPanelLayout), warnings };
 	}
+	const presetLayout = PRESET_SIDEBAR_LAYOUTS[preset];
+	if (presetLayout) return { layout: cloneLayout(presetLayout), warnings };
 	const layout = cloneLayout(DEFAULT_CONFIG.sidebarPanelLayout);
 	// Legacy Agent and TODOS visibility are global-user-only compatibility inputs.
 	// Project/session values are intentionally ignored.
@@ -448,7 +462,7 @@ export function resolveConfig(input: {
 		if (isRecord(layer)) displayLayers[source] = layer;
 	}
 	const resolved = resolveDisplayLayers(displayLayers);
-	const sidebar = resolveSidebarLayout(displayLayers);
+	const sidebar = resolveSidebarLayout(displayLayers, resolved.display.preset);
 	Object.assign(config, resolved.display, { sidebarPanelLayout: sidebar.layout });
 	return {
 		config,

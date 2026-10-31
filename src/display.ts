@@ -19,7 +19,7 @@ export const PRODUCT_SEGMENT_ORDER = [
 	"statuses",
 	"menu",
 ] as const;
-export const TEMPLATE_NAMES = ["editorial", "minimal", "classic"] as const;
+export const TEMPLATE_NAMES = ["editorial", "minimal", "classic", "goalfocus"] as const;
 export const DENSITIES = ["comfortable", "compact"] as const;
 
 const REQUIRED_SEGMENT_IDS: ReadonlySet<SegmentId> = new Set(["metrics", "context"]);
@@ -55,6 +55,14 @@ export const DISPLAY_TEMPLATES: Record<TemplateName, Omit<DisplaySettings, "pres
 	classic: {
 		density: "comfortable",
 		segmentLayout: layout(["metrics", "context", "model", "git", "statuses"]),
+	},
+	/**
+	 * Goal-first layout: the sidebar carries what the agent is doing, so the rail
+	 * keeps only identity, usage/cost, context, branch and the menu in one place.
+	 */
+	goalfocus: {
+		density: "compact",
+		segmentLayout: layout(["activity", "metrics", "context", "model", "git", "menu"]),
 	},
 };
 
