@@ -1,0 +1,11 @@
+╭─ ✦ GOAL X ─────────────────╮
+│ PAUSED                     │
+│ Synthetic live goal        │
+│ Progress 2/4 · 50%         │
+│ ████░░░░                   │
+│ ▶ live-task… Focused task  │
+│ ○ Second task              │
+│ ✓ 2 done                   │
+│ ✓ First task               │
+│ ✓ Live task                │
+╰────────────────────────────╯

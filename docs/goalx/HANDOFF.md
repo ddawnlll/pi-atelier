@@ -6,9 +6,9 @@
 |---|---|
 | Fork | https://github.com/ddawnlll/pi-atelier |
 | Branch | `feat/pi-goal-x-integration` |
-| Commit at handoff | the branch head; `git rev-parse HEAD` in the checkout is authoritative (installed pin == branch head == `origin`) |
+| Code commit | the branch head at the time of writing (installed pin == branch head == `origin`); this file is committed in the immediately following docs-only commit, so `git rev-parse --short HEAD^` is the code commit it describes |
 | Upstream base | `93025f2` — pi-atelier 0.18.0, MIT |
-| Changed files | `git diff --stat upstream/main..HEAD` is authoritative; at handoff: 31 files, +4,8xx/−6 |
+| Changed files | filled in the docs-only commit that follows the code commit (see below) |
 | Remotes | `origin` = fork, `upstream` = michaelmjhhhh/pi-atelier |
 | Installed pin | read from `pi list`; equals `git rev-parse HEAD` in the installed checkout |
 
@@ -37,14 +37,15 @@ integration's on/off state.
 
 ## Validation
 
-- `npm run typecheck` pass · `npm run format:check` pass (89 files) · `npm run check:pack` pass
-  (38 files) · `npm test` **568 passed / 3 failed / 2 skipped** (the 3 are the pre-existing Windows
+- `npm run typecheck` pass · `npm run format:check` pass (92 files) · `npm run check:pack` pass
+  (38 files) · `npm test` **571 passed / 3 failed / 2 skipped** (the 3 are the pre-existing Windows
   failures recorded in `bench/BASELINE.md`, reproduced on upstream before any change).
 - Benchmark: baseline 3.1619 / 1.8922 / 3.5070 ms; branch 2.4435 / 1.7163 / 3.6750 ms
   (`npm run bench:sidebar`) and 1.6491 / 0.9688 / 2.2758 ms (`npm run bench:sidebar:win`).
   No regression; the harness does not exercise the Goal X panel (see `performance.md`).
-- Live isolated Pi 1.4.0 ConPTY run: 16/16 checks pass (sidebar-scoped assertions, synthetic goals,
-  transition frames required to differ), frames and PNGs in
+- Live isolated Pi 1.4.0 ConPTY run: 18/18 checks pass (pyte screen, border-anchored panel
+  extraction, synthetic goals, explicit vs inferred current task, transition frames required to
+  differ), frames and PNGs in
   `live-scenario/`; results in `live-scenario/results.json`.
 - Real data: session focus + real goal root → `focused: true`, goal `mvwwza7q-3aqnje`, 13/13,
   `audit: disapproved`, no warnings.

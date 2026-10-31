@@ -28,9 +28,12 @@ import time
 from pathlib import Path
 
 try:
+    import pyte
     from winpty import PtyProcess
-except ImportError as exc:  # pragma: no cover - tooling-only dependency
-    raise SystemExit("pywinpty is required: python -m pip install pywinpty") from exc
+except ImportError as exc:  # pragma: no cover - tooling-only dependencies
+    raise SystemExit(
+        "pywinpty and pyte are required: python -m pip install pywinpty pyte"
+    ) from exc
 
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b\][^\x07]*\x07|\x1b[()][A-Z0-9]|\x1b[=>]")
 SIDEBAR_COLS = 46
@@ -41,11 +44,18 @@ def strip_ansi(raw: str) -> str:
 
 
 class Screen:
-    """Collects PTY output in a background thread."""
+    """Feeds the PTY stream through a terminal emulator and exposes the current screen.
 
-    def __init__(self, proc):
+    Reading the byte stream directly is unreliable for a diffing TUI: incremental repaints are not
+    line-ordered, so slicing the stream can mix old and new frames. pyte keeps a real screen grid,
+    which is what the user sees.
+    """
+
+    def __init__(self, proc, width: int, height: int):
         self.proc = proc
-        self.buf: list[str] = []
+        self.screen = pyte.Screen(width, height)
+        self.stream = pyte.Stream(self.screen)
+        self.raw: list[str] = []
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._read, daemon=True)
         self.thread.start()
@@ -56,18 +66,23 @@ class Screen:
                 chunk = self.proc.read(65536)
             except Exception:
                 break
-            if chunk:
-                self.buf.append(chunk)
-            else:
+            if not chunk:
                 time.sleep(0.05)
+                continue
+            self.raw.append(chunk)
+            try:
+                self.stream.feed(chunk)
+            except Exception:
+                pass
 
     def wait(self, seconds: float) -> None:
         time.sleep(seconds)
 
     def take(self) -> str:
-        raw = "".join(self.buf)
-        self.buf.clear()
-        return strip_ansi(raw)
+        """Current rendered screen (no ANSI; one string per row)."""
+        rows = list(self.screen.display)
+        self.raw.clear()
+        return "\n".join(row.rstrip() for row in rows)
 
     def close(self):
         self.stop.set()
@@ -84,22 +99,36 @@ def spawn(env, cli, node, cwd, session, width, height):
          "--model", "deepseek-v4.1-flash"],
         dimensions=(height, width), cwd=cwd, env=env,
     )
-    return Screen(proc)
+    return Screen(proc, width, height)
 
 
-def sidebar_column(text: str, width: int) -> list[str]:
-    """Right-hand sidebar column of the last captured frame."""
+def sidebar_block(text: str) -> list[str]:
+    """Extracts Atelier's GOAL X panel by its own border, not by a fixed offset.
+
+    Returns [] when the panel is not on screen, so a probe can never be satisfied by
+    transcript text that merely mentions the panel.
+    """
     lines = text.split("\n")
-    start = None
-    for index, line in enumerate(lines):
-        if "GOAL X" in line or "No goal focused" in line or "Goal X not detected" in line:
-            start = max(0, index - 2)
-    if start is None:
-        start = max(0, len(lines) - 50)
-    column = []
-    for line in lines[start : start + 30]:
-        column.append(line[max(0, width - SIDEBAR_COLS) : width].rstrip())
-    return column
+    starts = [i for i, line in enumerate(lines) if "╭" in line and "GOAL X" in line]
+    if not starts:
+        return []
+    start = starts[-1]
+    border = lines[start].index("╭")
+    block: list[str] = []
+    for line in lines[start : start + 40]:
+        if not line.strip():
+            if block:
+                break
+            continue
+        block.append(line[border:].rstrip())
+        if "╰" in line[border:]:
+            break
+    return block
+
+
+def sidebar_column(text: str) -> list[str]:
+    """Kept for callers that only need the panel body."""
+    return sidebar_block(text)
 
 
 def render_png(lines: list[str], path: Path, title: str) -> None:
@@ -162,9 +191,9 @@ def append_focus(session: Path, goal_id: str) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", required=True)
-    parser.add_argument("--session", required=True)
-    parser.add_argument("--goals", required=True)
-    parser.add_argument("--atelier", required=True)
+    parser.add_argument("--session", default=None, help="real session jsonl (a copy is used)")
+    parser.add_argument("--goals", default=None, help="goal root (copied; only the copy is edited)")
+    parser.add_argument("--atelier", default=None, help="this checkout; defaults to the repo root")
     parser.add_argument("--cwd", default=os.getcwd())
     parser.add_argument("--node", default=shutil.which("node") or "node")
     parser.add_argument("--cli", default=None)
@@ -182,6 +211,35 @@ def main() -> int:
             raise SystemExit("cannot locate the Pi CLI; pass --cli <cli.js>")
         args.cli = str(found)
 
+    repo_root = Path(__file__).resolve().parents[2]
+    if not args.atelier:
+        args.atelier = str(repo_root)
+    atelier = Path(args.atelier)
+    if not (atelier / "package.json").exists():
+        # Accept a git package spec by resolving where pi keeps git packages.
+        spec = args.atelier.removeprefix("git:").removeprefix("https://").removeprefix("http://")
+        spec = spec.split("@")[0].rstrip("/")
+        candidate = Path.home() / ".pi/agent/git" / spec
+        if (candidate / "package.json").exists():
+            atelier = candidate
+        else:
+            raise SystemExit(f"cannot resolve --atelier {args.atelier!r}; pass the checkout path")
+    if not args.session:
+        sessions = sorted(
+            Path.home().glob(".pi/agent/sessions/**/*.jsonl"), key=lambda item: item.stat().st_mtime
+        )
+        if not sessions:
+            raise SystemExit("no session file found; pass --session")
+        args.session = str(sessions[-1])
+    if not args.goals:
+        # The session's cwd owns the goal root; fall back to the checkout.
+        for candidate in (Path(args.cwd) / ".pi/goals", repo_root / ".pi/goals"):
+            if candidate.exists():
+                args.goals = str(candidate)
+                break
+        else:
+            raise SystemExit("no goal root found; pass --goals")
+
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     work = out / ".work"
@@ -192,7 +250,7 @@ def main() -> int:
     shutil.copytree(args.goals, goals)
     agent.mkdir(parents=True)
     (agent / "settings.json").write_text(
-        json.dumps({"packages": ["npm:pi-goal-x", args.atelier], "theme": "dark"}), encoding="utf-8"
+        json.dumps({"packages": ["npm:pi-goal-x", str(atelier)], "theme": "dark"}), encoding="utf-8"
     )
     (agent / "pi-atelier.json").write_text(
         json.dumps({"preset": "goalfocus", "sidebarWidth": 32}), encoding="utf-8"
@@ -243,13 +301,14 @@ def main() -> int:
     probes: dict[str, bool] = {}
 
     def capture(name: str, text: str, needles: list[str], width: int = 150) -> str:
-        column = "\n".join(sidebar_column(text, width))
-        frames.append((name, sidebar_column(text, width)))
-        ok = all(needle in column for needle in needles)
+        block = sidebar_block(text)
+        column = "\n".join(block)
+        frames.append((name, block or ["<GOAL X panel not found>"]))
+        ok = bool(block) and all(needle in column for needle in needles)
         probes[name] = ok
         if not ok:
             missing = [needle for needle in needles if needle not in column]
-            print(f"MISS {name}: {missing}")
+            print(f"MISS {name}: {missing}".encode("ascii", "backslashreplace").decode("ascii"))
         return column
 
     def update_goal(goal_path: Path, mutate) -> None:
@@ -282,6 +341,25 @@ def main() -> int:
                          "evidence": "live scenario", "at": "2026-01-01T00:00:02.000Z"})
     screen.wait(6)
     capture("03-task-completed", screen.take(), ["Progress 2/3"])
+
+    # 3b-3c: explicit vs inferred current task.
+    def set_current(record):
+        record["taskList"]["tasks"].append(
+            {"id": "live-task-2", "title": "Focused task", "status": "pending"})
+        record["currentTaskId"] = "live-task-2"
+
+    update_goal(path_a, set_current)
+    append_event(goals, {"type": "task_started", "goalId": "live-goal-a", "taskId": "live-task-2",
+                         "at": "2026-01-01T00:00:02.500Z"})
+    screen.wait(6)
+    capture("03b-explicit-current-task", screen.take(), ["▶ live-task", "Focused task"])
+
+    def clear_current(record):
+        record.pop("currentTaskId", None)
+
+    update_goal(path_a, clear_current)
+    screen.wait(6)
+    capture("03c-inferred-current-task", screen.take(), ["inferred focus"])
 
     # 4-6: audit lifecycle.
     append_event(goals, {"type": "audit_started", "goalId": "live-goal-a", "at": "2026-01-01T00:00:03.000Z"})
@@ -324,7 +402,7 @@ def main() -> int:
     for width, height, label in ((100, 30, "10-resize-100x30"), (120, 40, "11-resize-120x40")):
         screen = spawn(env, args.cli, args.node, args.cwd, str(session), width, height)
         screen.wait(16)
-        capture(label, screen.take(), ["GOAL X", "Second live goal"], width=width)
+        capture(label, screen.take(), ["GOAL X", "Second live goal"])
         screen.close()
 
     # Transition frames must actually differ, so a stale panel cannot pass.
@@ -345,7 +423,7 @@ def main() -> int:
     with open(out / "results.json", "w", encoding="utf-8", newline="\n") as handle:
         json.dump(probes, handle, indent=2)
     for name, ok in probes.items():
-        print(f"{'PASS' if ok else 'FAIL'} {name}")
+        print(("PASS " if ok else "FAIL ") + name)
     return 0 if all(probes.values()) else 1
 
 

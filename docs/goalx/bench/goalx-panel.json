@@ -1,0 +1,23 @@
+{
+	"node": "v26.5.0",
+	"platform": "win32/x64",
+	"width": 32,
+	"height": 40,
+	"warmups": 5,
+	"samples": 30,
+	"defaultLayoutWithoutPanel": {
+		"medianMs": 0.8898,
+		"minMs": 0.7132,
+		"maxMs": 4.1397
+	},
+	"defaultLayoutWithContribution": {
+		"medianMs": 0.9228,
+		"minMs": 0.7808,
+		"maxMs": 5.7347
+	},
+	"goalFocusedLayout": {
+		"medianMs": 0.664,
+		"minMs": 0.599,
+		"maxMs": 0.7677
+	}
+}

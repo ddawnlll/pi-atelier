@@ -1,19 +1,17 @@
-                 │ AUDIT · CHANGES NEEDED
- only the       │ ✕ Final decision           │
-es list         │ Decision: CHANGES REQUESTE │
-h are           │ - replay invariant missing │
-                │ Goal remains open          │
-                ╰────────────────────────────╯
- lines and
-                ╭─ ✦ CONTEXT ────────────────╮
-                │ █████▋░░░░░░░░░░░░   31.0% │
-                │ Tokens         310k / 1.0M │
-                ╰────────────────────────────╯
-
-                ╭─ ✦ WORKSPACE ──────────────╮
-                │ src                        │
-                │ ~/Documents/src            │
-)               │ not a Git repository       │
-                │ History        636 entries │
-                │ Storage              Saved │
-                ╰────────────────────────────╯
+╭─ ✦ GOAL X ─────────────────╮
+│ PAUSED                     │
+│ Synthetic live goal        │
+│ Progress 2/4 · 50%         │
+│ ████░░░░                   │
+│ ~ task-2 Second task       │
+│ inferred focus             │
+│ ○ Focused task             │
+│ ✓ 2 done                   │
+│ ✓ First task               │
+│ ✓ Live task                │
+│ AUDIT · CHANGES NEEDED     │
+│ ✕ Final decision           │
+│ Decision: CHANGES REQUESTE │
+│ - replay invariant missing │
+│ Goal remains open          │
+╰────────────────────────────╯

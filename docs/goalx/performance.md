@@ -39,6 +39,20 @@ only on `EPERM`); `bench:sidebar:posix` / `bench:workspace:posix` run the unmodi
 - `SidebarPanelRegistry.register` compares contributions and returns without calling `onChange`
   when the content is identical, so an unchanged view cannot schedule another render.
 - The ledger read is bounded (512 KiB tail, configurable) and only parsed on stamp change.
+## Cost of the Goal X panel itself
+
+`npm run bench:goalx` renders the same 32x40 sidebar snapshot with and without the contributed panel
+(5 warm-ups, 30 samples, same source sandbox):
+
+| Scenario | Median |
+|---|---|
+| Default layout, no contribution | 0.8898 ms |
+| Default layout + Goal X panel | 0.9228 ms |
+| Goal-focused layout (panel + CONTEXT + WORKSPACE) | 0.664 ms |
+
+Adding the panel costs about **0.033 ms per render**, and the goal-focused layout is faster than
+the default layout because it renders eight fewer panels. Data: `docs/goalx/bench/goalx-panel.json`.
+
 - The view is memoized on the ledger `(mtime, size)`, the session focus id and the focused record's
   own `(mtime, size)`. A goal-record edit alone therefore refreshes the panel: `tests/goalx.test.ts`
   proves progress moves from 1/2 to 2/3 with no ledger write.

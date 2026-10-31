@@ -34,9 +34,10 @@ warnings   []
 | `npm run typecheck` | pass |
 | `npm run format:check` | pass (86 files) |
 | `npm run check:pack` | pass (38 files) |
-| `npm test` | 568 passed, 3 failed, 2 skipped — the 3 are the pre-existing Windows baseline failures (`run-activity` POSIX-home assertions, `subagent-usage` symlink `EPERM`) reproduced on `upstream/main` |
-| `npm run check` | `typecheck`, `format:check` (90 files), `test`, `check:pack` all pass individually. `check:audit` needs registry access and was not part of the recorded run |
-| `npm run bench:sidebar` | now succeeds on Windows via the preloaded junction shim; no regression beyond run-to-run noise (see `performance.md`) |
+| `npm test` | 571 passed, 3 failed, 2 skipped — the 3 are the pre-existing Windows baseline failures (`run-activity` POSIX-home assertions, `subagent-usage` symlink `EPERM`) reproduced on `upstream/main` |
+| `npm run check` | runs the whole chain: typecheck, `format:check` (92 files), `test`, `check:pack`, `check:audit`, `check:install`; it stops only at the 3 pre-existing Windows test failures (see `bench/BASELINE.md`), which are identical on upstream |
+| `npm run bench:sidebar` | succeeds on Windows via the preloaded junction shim; span 0.68-1.24 ms across runs (see `performance.md`) |
+| `npm run bench:goalx` | panel cost measured directly: 0.8898 -> 0.9228 ms (+0.03 ms) in the default layout, 0.664 ms in the goal-focused layout |
 | `npm run bench:sidebar` | no regression (see `performance.md`) |
 
 ### Isolated Pi process
@@ -66,15 +67,18 @@ Two runs, both against the **installed host** (Pi 1.4.0), with an isolated
 
 `scripts/e2e/live-tui-scenario.py` drives the installed Pi 1.4.0 in a sized ConPTY against a copy of
 a real session, **synthetic** goals, and a copy of the goal root whose goals are paused, so nothing
-real is written and no agent or auditor run starts. Assertions are made on the extracted sidebar
-column only (not the raw terminal stream), and the transition frames are required to differ from
-each other so a stale panel cannot pass. Result: **16/16 checks pass** —
+real is written and no agent or auditor run starts. The PTY stream is rendered through a real
+terminal emulator (`pyte`) and the panel is located by its own border, so assertions cannot be
+satisfied by transcript text; the transition frames are required to differ from each other so a
+stale panel cannot pass. Result: **18/18 checks pass** —
 
 | Step | Sidebar evidence |
 |---|---|
 | 01 focused goal | `GOAL X`, `PAUSED`, `Synthetic live goal`, `Progress 1/2` |
 | 02 task change | `Live task` row, `Progress 1/3` |
 | 03 task completed | `Progress 2/3` |
+| 03b explicit current task | `▶ live-task… Focused task` |
+| 03c inferred current task | `~ task-2 Second task` + `inferred focus` |
 | 04 audit running | `AUDITOR · VERIFYING`, `Decision: PENDING`, `Checks: not persisted` |
 | 05 approved | `AUDIT · APPROVED` |
 | 06 changes requested | `AUDIT · CHANGES NEEDED`, `replay invariant` |

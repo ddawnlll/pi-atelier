@@ -111,7 +111,9 @@ requests, no new dependencies.
 npm test                                   # unit + integration (Windows: 3 pre-existing failures)
 PI_E2E=1 npx vitest run tests/e2e-goalx.test.ts        # full lifecycle on a temp storage layout
 PI_REAL_GOALS_ROOT=~/.pi/goals PI_REAL_SESSION=<session.jsonl> npx vitest run tests/e2e-real-data.test.ts
-npm run bench:sidebar:win                  # Windows benchmark (junction shim, upstream tooling untouched)
+npm run bench:sidebar                      # upstream benchmark (junction shim preloaded on Windows)
+npm run bench:goalx                        # cost of the Goal X panel in the real renderer
+python scripts/e2e/live-tui-scenario.py --out /tmp/live-scenario   # live ConPTY lifecycle walk
 ```
 
 `tests/goalx.test.ts` covers parsing, session focus, current-task semantics, progress and audit

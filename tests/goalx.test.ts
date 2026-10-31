@@ -282,6 +282,31 @@ describe("audit derivation", () => {
 		expect(audit.phase).toBe("disapproved");
 	});
 
+	it("never claims a workspace inspection result, because none is persisted", () => {
+		const audit = auditOf([
+			{
+				type: "audit_result",
+				goalId: "goal-1",
+				verdict: "approved",
+				report: "Workspace inspection: clean\nTests: 42 passed",
+			},
+		]);
+		// The verdict is reported; the report's prose never becomes a structured check.
+		expect(audit.decision).toBe("approved");
+		expect(audit.checks.map((check) => check.id)).toEqual(["decision"]);
+		// The report is retained verbatim for the conversation, but never turned into a check.
+		expect(audit.checks.some((check) => /workspace/i.test(check.label))).toBe(false);
+		expect(audit.findings).toEqual([]);
+	});
+
+	it("handles incomplete evidence: a rejection with no findings still reports the decision", () => {
+		const audit = auditOf([{ type: "audit_result", goalId: "goal-1", verdict: "disapproved", report: "" }]);
+		expect(audit.phase).toBe("disapproved");
+		expect(audit.decision).toBe("changes_requested");
+		expect(audit.findings).toEqual([]);
+		expect(audit.checks).toEqual([{ id: "decision", label: "Final decision", state: "failed" }]);
+	});
+
 	it("reports a skipped audit with its reason", () => {
 		expect(auditOf([{ type: "audit_skipped", goalId: "goal-1", reason: "user_aborted" }])).toMatchObject({
 			phase: "skipped",

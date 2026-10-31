@@ -2,6 +2,8 @@
 	"01-focused-goal": true,
 	"02-task-change": true,
 	"03-task-completed": true,
+	"03b-explicit-current-task": true,
+	"03c-inferred-current-task": true,
 	"04-audit-running": true,
 	"05-approved": true,
 	"06-changes-requested": true,

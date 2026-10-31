@@ -1,18 +1,16 @@
-                 │ AUDITOR · VERIFYING
- only the       │ Checks: not persisted      │
-es list         │ Decision: PENDING          │
-h are           │ no verdict yet             │
-                ╰────────────────────────────╯
-
- lines and      ╭─ ✦ CONTEXT ────────────────╮
-                │ █████▋░░░░░░░░░░░░   31.0% │
-                │ Tokens         310k / 1.0M │
-                ╰────────────────────────────╯
-
-                ╭─ ✦ WORKSPACE ──────────────╮
-                │ src                        │
-                │ ~/Documents/src            │
-                │ not a Git repository       │
-)               │ History        636 entries │
-                │ Storage              Saved │
-                ╰────────────────────────────╯
+╭─ ✦ GOAL X ─────────────────╮
+│ PAUSED                     │
+│ Synthetic live goal        │
+│ Progress 2/4 · 50%         │
+│ ████░░░░                   │
+│ ~ task-2 Second task       │
+│ inferred focus             │
+│ ○ Focused task             │
+│ ✓ 2 done                   │
+│ ✓ First task               │
+│ ✓ Live task                │
+│ AUDITOR · VERIFYING        │
+│ Checks: not persisted      │
+│ Decision: PENDING          │
+│ no verdict yet             │
+╰────────────────────────────╯
