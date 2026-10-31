@@ -1,0 +1,30 @@
+ rerun once
+
+                ╭─ ✦ GOAL X ─────────────────╮
+ing reload      │ PAUSED                     │
+ to             │ Second live goal           │
+.06, 07, 08,    │ Progress 0/1 · 0%          │
+09 which are    │ ░░░░░░░░                   │
+                │ ~ task-1 B task            │
+                │ inferred focus             │
+alse            ╰────────────────────────────╯
+eanly.
+                ╭─ ✦ CONTEXT ────────────────╮
+                │ █████▋░░░░░░░░░░░░   31.0% │
+                │ Tokens         310k / 1.0M │
+                ╰────────────────────────────╯
+
+                ╭─ ✦ WORKSPACE ──────────────╮
+                │ src                        │
+)) ==           │ ~/Documents/src            │
+                │ inspecting…                │
+                │ History        638 entries │
+                │ Storage              Saved │
+ | head -1)     ╰────────────────────────────╯
+
+rio --session
+
+
+
+
+i-coding-agen

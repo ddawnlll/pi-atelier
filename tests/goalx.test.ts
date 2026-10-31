@@ -452,6 +452,31 @@ describe("cached reader", () => {
 		expect(reader.view().available).toBe(false);
 	});
 
+	it("refreshes when only the goal record changes and the ledger does not", () => {
+		const cwd = workspace();
+		writeGoal(cwd, {
+			id: "goal-1",
+			tasks: [
+				{ id: "task-1", title: "One", status: "complete" },
+				{ id: "task-2", title: "Two", status: "pending" },
+			],
+		});
+		writeLedger(cwd, []);
+		const reader = createGoalXReader({ cwd, watch: false, focus: focusOn("goal-1") });
+		expect(reader.view().progress).toEqual({ completed: 1, total: 2, percentage: 50 });
+		// Goal X rewrites the record; no ledger event is appended in this case.
+		writeGoal(cwd, {
+			id: "goal-1",
+			tasks: [
+				{ id: "task-1", title: "One", status: "complete" },
+				{ id: "task-2", title: "Two", status: "complete" },
+				{ id: "task-3", title: "Three", status: "pending" },
+			],
+		});
+		expect(reader.view().progress).toEqual({ completed: 2, total: 3, percentage: 67 });
+		reader.dispose();
+	});
+
 	it("notifies once after a watched change and stops after dispose", async () => {
 		const cwd = workspace();
 		writeGoal(cwd);

@@ -99,6 +99,8 @@ export interface GoalXView {
 	 */
 	recordMissing?: boolean;
 	storageRoot: string;
+	/** Resolved record path for the focused goal; internal detail used to detect record edits. */
+	goalFile?: string;
 	warnings: string[];
 }
 
@@ -569,7 +571,10 @@ export interface GoalXReaderOptions extends GoalXViewOptions {
 const WATCH_DEBOUNCE_MS = 120;
 
 /** Parses every active goal file, keeping only the focused record when known. */
-function loadFocusedGoal(root: string, focusedId: string | null): { goal?: GoalXGoal; warnings: string[] } {
+function loadFocusedGoal(
+	root: string,
+	focusedId: string | null,
+): { goal?: GoalXGoal; file?: string; warnings: string[] } {
 	const warnings: string[] = [];
 	if (!focusedId) return { warnings };
 	let entries: string[];
@@ -589,7 +594,7 @@ function loadFocusedGoal(root: string, focusedId: string | null): { goal?: GoalX
 			continue;
 		}
 		const goal = parseGoalXRecord(content);
-		if (goal?.id === focusedId) return { goal, warnings };
+		if (goal?.id === focusedId) return { goal, file, warnings };
 	}
 	return { warnings };
 }
@@ -628,6 +633,7 @@ export function readGoalXView(options: GoalXViewOptions): GoalXView {
 	return {
 		...base,
 		goal,
+		...(loaded.file ? { goalFile: loaded.file } : {}),
 		...(currentTask ? { currentTask } : {}),
 		progress: deriveGoalXProgress(goal),
 		audit: deriveGoalXAudit(events, goal.id),
@@ -642,7 +648,11 @@ export function createGoalXReader(options: GoalXReaderOptions): GoalXReader {
 	let root = resolveGoalXRoot(options);
 	const focusOf = (): GoalXFocus | undefined => options.getFocus?.() ?? options.focus;
 	let ledgerPath = path.join(root, "goal_events.jsonl");
-	let cached: { view: GoalXView; stamp: FileStamp | undefined; focusKey: string } | undefined;
+	let cached:
+		| { view: GoalXView; stamp: FileStamp | undefined; focusKey: string; goalStamp: FileStamp | undefined }
+		| undefined;
+	/** Record path per focus id: resolved by suffix so a goal edit is detected without a rescan. */
+	const goalPathByFocus = new Map<string, string>();
 	let disposed = false;
 	let watcher: fs.FSWatcher | undefined;
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -658,13 +668,42 @@ export function createGoalXReader(options: GoalXReaderOptions): GoalXReader {
 			watch();
 			cached = undefined;
 		}
+		const focusId = focus?.focusedGoalId ?? null;
+		const goalPath = focusId ? resolveGoalPath(root, focusId) : undefined;
 		const stampNow = stamp(ledgerPath);
-		const focusKey = `${focus?.focusedGoalId ?? ""}|${focus?.storageRoot ?? ""}`;
-		if (cached && sameStamp(cached.stamp, stampNow) && cached.focusKey === focusKey) return cached.view;
+		const focusKey = `${focusId ?? ""}|${focus?.storageRoot ?? ""}`;
+		const goalStamp = goalPath ? stamp(goalPath) : undefined;
+		if (
+			cached &&
+			sameStamp(cached.stamp, stampNow) &&
+			cached.focusKey === focusKey &&
+			sameStamp(cached.goalStamp, goalStamp)
+		)
+			return cached.view;
 		const view = readGoalXView(resolvedOptions);
-		cached = { view, stamp: stampNow, focusKey };
+		cached = { view, stamp: stampNow, focusKey, goalStamp };
 		return view;
 	};
+
+	/** Finds `active_goal_*_<id>.md` without parsing; the id suffix keeps it O(files). */
+	function resolveGoalPath(cwdRoot: string, id: string): string | undefined {
+		const known = goalPathByFocus.get(`${cwdRoot}|${id}`);
+		if (known && stamp(known)) return known;
+		let names: string[];
+		try {
+			names = fs.readdirSync(cwdRoot);
+		} catch {
+			return undefined;
+		}
+		const match = names.find((name) => name.endsWith(`_${id}.md`) && name.startsWith("active_goal_"));
+		if (!match) {
+			goalPathByFocus.delete(`${cwdRoot}|${id}`);
+			return undefined;
+		}
+		const file = path.join(cwdRoot, match);
+		goalPathByFocus.set(`${cwdRoot}|${id}`, file);
+		return file;
+	}
 
 	function watch(): void {
 		if (options.watch === false) return;

@@ -1,0 +1,7 @@
+                 │ Progress 2/3 · 67%
+                │ █████░░░                   │
+                │ ~ task-2 Second task       │
+ on the         │ inferred focus             │
+t contains      │ ✓ 2 done                   │
+ rerun once     │ ✓ First task               │
+                │ ✓ Live task                │

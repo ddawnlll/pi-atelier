@@ -130,9 +130,9 @@ covers the layout preset. `tests/goalx-widget-shim.test.ts` covers the optional 
 3. **Widget is not hidden automatically** (see above).
 4. **Audit stage detail is unavailable.** Goal X persists start + verdict only; no per-check or
    workspace-inspection signal exists to display.
-4. **Attribution of findings** follows Goal X's deterministic extraction: findings are bullets or
+5. **Attribution of findings** follows Goal X's deterministic extraction: findings are bullets or
    leading lines from the report, capped at three. Vague prose is not converted into pass/fail.
-5. **Windows baseline failures** in `npm test` (`run-activity` POSIX-home assertions and a
+6. **Windows baseline failures** in `npm test` (`run-activity` POSIX-home assertions and a
    `subagent-usage` symlink `EPERM`) exist upstream and are unrelated to this integration.
 
 ## Upstream sync

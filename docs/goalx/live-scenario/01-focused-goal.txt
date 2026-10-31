@@ -1,30 +1,30 @@
+nd after) —
 
-
-                ╭─ ✦ GOAL X ─────────────────╮
+counts,         ╭─ ✦ GOAL X ─────────────────╮
                 │ PAUSED                     │
-                │ Fork https://github.com/mi │
-                │ Progress 13/13 · 100%      │
-                │ ████████                   │
-                │ ✓ 13 done · 10 hidden      │
-                │ ✓ Validate end-to-end in i │
-                │ ✓ Install the validated fo │
-                │ ✓ Write docs, push branch  │
-                │ AUDIT · CHANGES NEEDED     │
-                │ ✕ Final decision           │
-                │ Decision: CHANGES REQUESTE │
-                │ - I'll start by inspecting │
-                │ - I've inspected the repos │
-                │ - ## Verified as real      │
-                │ Goal remains open          │
+                │ Synthetic live goal        │
+                │ Progress 1/2 · 50%         │
+                │ ████░░░░                   │
+                │ ~ task-2 Second task       │
+ on the         │ inferred focus             │
+t contains      │ ✓ 1 done                   │
+ rerun once     │ ✓ First task               │
                 ╰────────────────────────────╯
 
-                ╭─ ✦ CONTEXT ────────────────╮
-                │ █████▎░░░░░░░░░░░░   29.4% │
-                │ Tokens         294k / 1.0M │
+ only the       ╭─ ✦ CONTEXT ────────────────╮
+es list         │ █████▋░░░░░░░░░░░░   31.0% │
+h are           │ Tokens         310k / 1.0M │
                 ╰────────────────────────────╯
 
-                ╭─ ✦ WORKSPACE ──────────────╮
+ lines and      ╭─ ✦ WORKSPACE ──────────────╮
                 │ src                        │
                 │ ~/Documents/src            │
                 │ inspecting…                │
- ["Second       │ History        608 entries │
+                │ History        636 entries │
+                │ Storage              Saved │
+                ╰────────────────────────────╯
+
+
+)
+
+

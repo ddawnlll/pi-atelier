@@ -6,8 +6,9 @@
 |---|---|
 | Fork | https://github.com/ddawnlll/pi-atelier |
 | Branch | `feat/pi-goal-x-integration` |
-| Commit at handoff | `fcff57c` (this file's commit) |
+| Commit at handoff | the branch head; `git rev-parse HEAD` in the checkout is authoritative (installed pin == branch head == `origin`) |
 | Upstream base | `93025f2` — pi-atelier 0.18.0, MIT |
+| Changed files | `git diff --stat upstream/main..HEAD` is authoritative; at handoff: 31 files, +4,8xx/−6 |
 | Remotes | `origin` = fork, `upstream` = michaelmjhhhh/pi-atelier |
 | Installed pin | read from `pi list`; equals `git rev-parse HEAD` in the installed checkout |
 
@@ -42,7 +43,8 @@ integration's on/off state.
 - Benchmark: baseline 3.1619 / 1.8922 / 3.5070 ms; branch 2.4435 / 1.7163 / 3.6750 ms
   (`npm run bench:sidebar`) and 1.6491 / 0.9688 / 2.2758 ms (`npm run bench:sidebar:win`).
   No regression; the harness does not exercise the Goal X panel (see `performance.md`).
-- Live isolated Pi 1.4.0 ConPTY run: 10/10 lifecycle steps pass, frames and PNGs in
+- Live isolated Pi 1.4.0 ConPTY run: 16/16 checks pass (sidebar-scoped assertions, synthetic goals,
+  transition frames required to differ), frames and PNGs in
   `live-scenario/`; results in `live-scenario/results.json`.
 - Real data: session focus + real goal root → `focused: true`, goal `mvwwza7q-3aqnje`, 13/13,
   `audit: disapproved`, no warnings.

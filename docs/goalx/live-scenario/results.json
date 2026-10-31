@@ -1,12 +1,18 @@
 {
-	"focused goal": true,
-	"task change": true,
-	"task completed": true,
-	"audit running": true,
-	"approved": true,
-	"changes requested": true,
-	"goal switch": true,
-	"session reload": true,
-	"08-resize-100x30": true,
-	"09-resize-120x40": true
+	"01-focused-goal": true,
+	"02-task-change": true,
+	"03-task-completed": true,
+	"04-audit-running": true,
+	"05-approved": true,
+	"06-changes-requested": true,
+	"07-return-to-goal-mode": true,
+	"07-no-audit": true,
+	"08-goal-switch": true,
+	"09-session-reload": true,
+	"10-resize-100x30": true,
+	"11-resize-120x40": true,
+	"frame-differs:01-focused-goal->02-task-change": true,
+	"frame-differs:02-task-change->03-task-completed": true,
+	"frame-differs:04-audit-running->05-approved": true,
+	"frame-differs:05-approved->06-changes-requested": true
 }

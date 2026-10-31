@@ -1,0 +1,18 @@
+                 │ AUDITOR · VERIFYING
+ only the       │ Checks: not persisted      │
+es list         │ Decision: PENDING          │
+h are           │ no verdict yet             │
+                ╰────────────────────────────╯
+
+ lines and      ╭─ ✦ CONTEXT ────────────────╮
+                │ █████▋░░░░░░░░░░░░   31.0% │
+                │ Tokens         310k / 1.0M │
+                ╰────────────────────────────╯
+
+                ╭─ ✦ WORKSPACE ──────────────╮
+                │ src                        │
+                │ ~/Documents/src            │
+                │ not a Git repository       │
+)               │ History        636 entries │
+                │ Storage              Saved │
+                ╰────────────────────────────╯

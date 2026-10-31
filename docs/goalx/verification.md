@@ -35,7 +35,8 @@ warnings   []
 | `npm run format:check` | pass (86 files) |
 | `npm run check:pack` | pass (38 files) |
 | `npm test` | 568 passed, 3 failed, 2 skipped — the 3 are the pre-existing Windows baseline failures (`run-activity` POSIX-home assertions, `subagent-usage` symlink `EPERM`) reproduced on `upstream/main` |
-| `npm run check` | `typecheck`, `format:check` (89 files), `test`, `check:pack` all pass individually. `check:audit` needs registry access and was not part of the recorded run |
+| `npm run check` | `typecheck`, `format:check` (90 files), `test`, `check:pack` all pass individually. `check:audit` needs registry access and was not part of the recorded run |
+| `npm run bench:sidebar` | now succeeds on Windows via the preloaded junction shim; no regression beyond run-to-run noise (see `performance.md`) |
 | `npm run bench:sidebar` | no regression (see `performance.md`) |
 
 ### Isolated Pi process
@@ -64,23 +65,28 @@ Two runs, both against the **installed host** (Pi 1.4.0), with an isolated
 ### Live scenario walk (isolated Pi, real TUI)
 
 `scripts/e2e/live-tui-scenario.py` drives the installed Pi 1.4.0 in a sized ConPTY against a copy of
-a real session and a paused copy of the goal root (nothing real is written), and walks the whole
-lifecycle in the running TUI. Result: **10/10 steps pass** —
+a real session, **synthetic** goals, and a copy of the goal root whose goals are paused, so nothing
+real is written and no agent or auditor run starts. Assertions are made on the extracted sidebar
+column only (not the raw terminal stream), and the transition frames are required to differ from
+each other so a stale panel cannot pass. Result: **16/16 checks pass** —
 
-| Step | Observed |
+| Step | Sidebar evidence |
 |---|---|
-| 01 focused goal | `GOAL X`, `PAUSED`, `Progress`, real objective |
-| 02 task change | new `live-task` appears in the panel |
-| 02b task completed | progress row updates |
-| 03 audit running | `AUDITOR · VERIFYING`, `Decision: PENDING` |
-| 04 approved | `AUDIT · APPROVED`, `Decision: APPROVED` |
-| 05 changes requested | `AUDIT · CHANGES NEEDED` |
-| 06 goal switch | panel switches to the second focused goal |
-| 07 session reload | panel renders the focused goal again |
-| 08-09 resize | 100x30 and 120x40 both render `GOAL X` |
+| 01 focused goal | `GOAL X`, `PAUSED`, `Synthetic live goal`, `Progress 1/2` |
+| 02 task change | `Live task` row, `Progress 1/3` |
+| 03 task completed | `Progress 2/3` |
+| 04 audit running | `AUDITOR · VERIFYING`, `Decision: PENDING`, `Checks: not persisted` |
+| 05 approved | `AUDIT · APPROVED` |
+| 06 changes requested | `AUDIT · CHANGES NEEDED`, `replay invariant` |
+| 07 return to goal mode | `Returned live goal`, `Progress`, no audit block |
+| 08 goal switch | `Second live goal` |
+| 09 session reload | `Second live goal` |
+| 10-11 resize | 100x30 and 120x40 render `GOAL X` |
+| frame diffs | 01→02, 02→03, 04→05, 05→06 all differ |
 
-Frames and PNG renderings of the captured frames: `docs/goalx/live-scenario/` (plus
-`results.json`). The PNGs are images generated from the real captured text, labelled as such.
+Frames and PNG renderings of the captured frames: `docs/goalx/live-scenario/`, with the machine
+readable outcome in `results.json`. The PNGs are images generated from the real captured text and
+are labelled as such.
 
 ### Still not covered by a live TUI
 

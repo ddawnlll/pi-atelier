@@ -208,113 +208,135 @@ def main() -> int:
     env["PI_GOAL_ROOT"] = str(goals)
     env.pop("NO_COLOR", None)
 
-    focus_line = None
-    for line in reversed(session.read_text(encoding="utf-8").splitlines()):
-        if "pi-goal-focus" not in line:
-            continue
-        try:
-            entry = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        data = entry.get("data")
-        if isinstance(data, dict) and isinstance(data.get("focusedGoalId"), str):
-            focus_line = data["focusedGoalId"]
-            break
-    if not focus_line:
-        raise SystemExit("session copy has no pi-goal-focus entry")
-    focused = focus_line
-    path = goal_file(goals, focused)
-    rewrite_goal(path, lambda r: r.update(status="paused", autoContinue=False))
-    record = json.loads(path.read_text(encoding="utf-8").split("\n\n", 1)[0])
-    if not record.get("taskList", {}).get("tasks"):
-        raise SystemExit("focused goal has no task list to walk")
+    def write_goal(goal_id: str, objective: str, tasks: list[dict]) -> Path:
+        record = {
+            "version": 3,
+            "id": goal_id,
+            "objective": objective,
+            "status": "paused",
+            "autoContinue": False,
+            "usage": {"tokensUsed": 10, "activeSeconds": 5},
+            "createdAt": "2026-01-01T00:00:00.000Z",
+            "updatedAt": "2026-01-01T00:00:00.000Z",
+            "taskList": {"tasks": tasks, "blockCompletion": True,
+                         "proposedAt": "2026-01-01T00:00:00.000Z"},
+        }
+        target = goals / f"active_goal_2026010100000000_{goal_id}.md"
+        target.write_text(json.dumps(record), encoding="utf-8", newline="\n")
+        return target
+
+    # Synthetic goals only: no real objective or record is reused.
+    tasks_a = [
+        {"id": "task-1", "title": "First task", "status": "complete"},
+        {"id": "task-2", "title": "Second task", "status": "pending"},
+    ]
+    path_a = write_goal("live-goal-a", "Synthetic live goal", tasks_a)
+    write_goal("live-goal-b", "Second live goal", [
+        {"id": "task-1", "title": "B task", "status": "pending"},
+    ])
+    write_goal("live-goal-c", "Returned live goal", [
+        {"id": "task-1", "title": "C task", "status": "pending"},
+    ])
+    append_focus(session, "live-goal-a")
 
     frames: list[tuple[str, list[str]]] = []
     probes: dict[str, bool] = {}
 
-    def expect(name: str, text: str, needles: list[str]) -> None:
-        probes[name] = all(needle in text for needle in needles)
-        if not probes[name]:
-            missing = [needle for needle in needles if needle not in text]
+    def capture(name: str, text: str, needles: list[str], width: int = 150) -> str:
+        column = "\n".join(sidebar_column(text, width))
+        frames.append((name, sidebar_column(text, width)))
+        ok = all(needle in column for needle in needles)
+        probes[name] = ok
+        if not ok:
+            missing = [needle for needle in needles if needle not in column]
             print(f"MISS {name}: {missing}")
+        return column
 
-    # 1-2: startup, focused goal, task change (same process).
+    def update_goal(goal_path: Path, mutate) -> None:
+        record = json.loads(goal_path.read_text(encoding="utf-8").split("\n\n", 1)[0])
+        mutate(record)
+        goal_path.write_text(json.dumps(record), encoding="utf-8", newline="\n")
+
+    # 1: startup + focused synthetic goal.
     screen = spawn(env, args.cli, args.node, args.cwd, str(session), 150, 45)
     screen.wait(16)
-    first = screen.take()
-    frames.append(("01-focused-goal", sidebar_column(first, 150)))
-    expect("focused goal", first, ["GOAL X", "PAUSED", "Progress"])
+    baseline = screen.take()
+    capture("01-focused-goal", baseline, ["GOAL X", "PAUSED", "Synthetic live goal", "Progress 1/2"])
 
-    def add_task(r):
-        r["taskList"]["tasks"].append({"id": "live-task", "title": "Live scenario task", "status": "pending"})
+    # 2: task change (record only; Goal X would also append a task_started event).
+    update_goal(path_a, lambda r: r["taskList"]["tasks"].append(
+        {"id": "live-task", "title": "Live task", "status": "pending"}))
+    append_event(goals, {"type": "task_started", "goalId": "live-goal-a", "taskId": "live-task",
+                         "at": "2026-01-01T00:00:01.000Z"})
+    screen.wait(6)
+    capture("02-task-change", screen.take(), ["Live task", "Progress 1/3"])
 
-    rewrite_goal(path, add_task)
-    screen.wait(5)
-    second = screen.take() or first
-    frames.append(("02-task-change", sidebar_column(second, 150)))
-    expect("task change", second, ["Progress", "live-task"])
-
-    def complete_task(r):
-        for task in r["taskList"]["tasks"]:
+    # 3: task completion.
+    def complete(record):
+        for task in record["taskList"]["tasks"]:
             if task["id"] == "live-task":
                 task["status"] = "complete"
 
-    rewrite_goal(path, complete_task)
-    screen.wait(5)
-    second_b = screen.take() or second
-    frames.append(("02b-task-completed", sidebar_column(second_b, 150)))
-    expect("task completed", second_b, ["Progress"])
+    update_goal(path_a, complete)
+    append_event(goals, {"type": "task_complete", "goalId": "live-goal-a", "taskId": "live-task",
+                         "evidence": "live scenario", "at": "2026-01-01T00:00:02.000Z"})
+    screen.wait(6)
+    capture("03-task-completed", screen.take(), ["Progress 2/3"])
 
-    append_event(goals, {"type": "audit_started", "goalId": focused, "at": "2026-01-01T00:00:00.000Z"})
-    screen.wait(5)
-    third = screen.take()
-    frames.append(("03-audit-running", sidebar_column(third or first, 150)))
-    expect("audit running", third or first, ["AUDITOR", "PENDING"])
+    # 4-6: audit lifecycle.
+    append_event(goals, {"type": "audit_started", "goalId": "live-goal-a", "at": "2026-01-01T00:00:03.000Z"})
+    screen.wait(6)
+    capture("04-audit-running", screen.take(), ["AUDITOR", "PENDING", "Checks: not persisted"])
 
-    append_event(goals, {"type": "audit_result", "goalId": focused, "verdict": "approved",
-                         "report": "<approved/>", "at": "2026-01-01T00:01:00.000Z"})
-    screen.wait(5)
-    fourth = screen.take()
-    frames.append(("04-approved", sidebar_column(fourth or first, 150)))
-    expect("approved", fourth or first, ["APPROVED"])
+    append_event(goals, {"type": "audit_result", "goalId": "live-goal-a", "verdict": "approved",
+                         "report": "<approved/>", "at": "2026-01-01T00:00:04.000Z"})
+    screen.wait(6)
+    capture("05-approved", screen.take(), ["APPROVED"])
 
-    append_event(goals, {"type": "audit_result", "goalId": focused, "verdict": "disapproved",
-                         "report": "- replay invariant missing", "at": "2026-01-01T00:02:00.000Z"})
-    screen.wait(5)
-    fifth = screen.take()
-    frames.append(("05-changes-requested", sidebar_column(fifth or first, 150)))
-    expect("changes requested", fifth or first, ["CHANGES NEEDED"])
+    append_event(goals, {"type": "audit_result", "goalId": "live-goal-a", "verdict": "disapproved",
+                         "report": "- replay invariant missing", "at": "2026-01-01T00:00:05.000Z"})
+    screen.wait(6)
+    capture("06-changes-requested", screen.take(), ["CHANGES NEEDED", "replay invariant"])
     screen.close()
 
-    # 6: goal switch — focus a second goal in a fresh process.
-    second_goal = "live-goal-b"
-    template = json.loads(path.read_text(encoding="utf-8").split("\n\n", 1)[0])
-    template.update(id=second_goal, objective="Second live goal", status="paused", autoContinue=False)
-    (goals / f"active_goal_2026010100000000_{second_goal}.md").write_text(json.dumps(template), encoding="utf-8")
-    append_focus(session, second_goal)
+    # 7: return to goal mode (no audit history for goal C).
+    append_focus(session, "live-goal-c")
     screen = spawn(env, args.cli, args.node, args.cwd, str(session), 150, 45)
     screen.wait(16)
-    sixth = screen.take()
-    frames.append(("06-goal-switch", sidebar_column(sixth, 150)))
-    expect("goal switch", sixth, ["Second live goal"])
+    column = capture("07-return-to-goal-mode", screen.take(), ["Returned live goal", "Progress"])
+    probes["07-no-audit"] = "AUDIT" not in column
     screen.close()
 
-    # 7: session reload — same process inputs again.
+    # 8: goal switch.
+    append_focus(session, "live-goal-b")
     screen = spawn(env, args.cli, args.node, args.cwd, str(session), 150, 45)
     screen.wait(16)
-    seventh = screen.take()
-    frames.append(("07-session-reload", sidebar_column(seventh, 150)))
-    expect("session reload", seventh, ["Second live goal"])
+    capture("08-goal-switch", screen.take(), ["Second live goal"])
     screen.close()
 
-    # 8: resize — narrow and short terminals.
-    for width, height, label in ((100, 30, "08-resize-100x30"), (120, 40, "09-resize-120x40")):
+    # 9: session reload (same inputs again).
+    screen = spawn(env, args.cli, args.node, args.cwd, str(session), 150, 45)
+    screen.wait(16)
+    capture("09-session-reload", screen.take(), ["Second live goal"])
+    screen.close()
+
+    # 10-11: resize.
+    for width, height, label in ((100, 30, "10-resize-100x30"), (120, 40, "11-resize-120x40")):
         screen = spawn(env, args.cli, args.node, args.cwd, str(session), width, height)
         screen.wait(16)
-        eighth = screen.take()
-        frames.append((label, sidebar_column(eighth, width)))
-        expect(label, eighth, ["GOAL X"])
+        capture(label, screen.take(), ["GOAL X", "Second live goal"], width=width)
         screen.close()
+
+    # Transition frames must actually differ, so a stale panel cannot pass.
+    import hashlib
+
+    digests = {name: hashlib.md5("\n".join(lines).encode()).hexdigest() for name, lines in frames}
+    for older, newer in (("01-focused-goal", "02-task-change"), ("02-task-change", "03-task-completed"),
+                         ("04-audit-running", "05-approved"), ("05-approved", "06-changes-requested")):
+        probes[f"frame-differs:{older}->{newer}"] = digests[older] != digests[newer]
+    for name in sorted(probes):
+        if not probes[name]:
+            print(f"FAIL {name}")
 
     for name, lines in frames:
         (out / f"{name}.txt").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")

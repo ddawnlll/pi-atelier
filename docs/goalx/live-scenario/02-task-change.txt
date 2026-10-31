@@ -1,30 +1,21 @@
-
-
-                ╭─ ✦ GOAL X ─────────────────╮
-                │ PAUSED                     │
-                │ Fork https://github.com/mi │
-                │ Progress 13/13 · 100%      │
-                │ ████████                   │
-                │ ✓ 13 done · 10 hidden      │
-                │ ✓ Validate end-to-end in i │
-                │ ✓ Install the validated fo │
-                │ ✓ Write docs, push branch  │
-                │ AUDIT · CHANGES NEEDED     │
-                │ ✕ Final decision           │
-                │ Decision: CHANGES REQUESTE │
-                │ - I'll start by inspecting │
-                │ - I've inspected the repos │
-                │ - ## Verified as real      │
-                │ Goal remains open          │
+                 │ Progress 1/3 · 33%
+                │ ███░░░░░                   │
+                │ ~ task-2 Second task       │
+ on the         │ inferred focus             │
+t contains      │ ○ Live task                │
+ rerun once     │ ✓ 1 done                   │
+                │ ✓ First task               │
                 ╰────────────────────────────╯
-
-                ╭─ ✦ CONTEXT ────────────────╮
-                │ █████▎░░░░░░░░░░░░   29.4% │
-                │ Tokens         294k / 1.0M │
+ only the
+es list         ╭─ ✦ CONTEXT ────────────────╮
+h are           │ █████▋░░░░░░░░░░░░   31.0% │
+                │ Tokens         310k / 1.0M │
                 ╰────────────────────────────╯
-
+ lines and
                 ╭─ ✦ WORKSPACE ──────────────╮
                 │ src                        │
                 │ ~/Documents/src            │
-                │ inspecting…                │
- ["Second       │ History        608 entries │
+                │ not a Git repository       │
+                │ History        636 entries │
+                │ Storage              Saved │
+                ╰────────────────────────────╯

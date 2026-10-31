@@ -43,11 +43,13 @@
 		"check:pack": "node scripts/verify-pack.mjs",
 		"check:audit": "npm audit --audit-level=low",
 		"check:install": "node scripts/verify-install.mjs",
-		"bench:sidebar": "node scripts/benchmark-sidebar.mjs",
-		"bench:workspace": "node scripts/benchmark-workspace.mjs",
+		"bench:sidebar": "node --import ./scripts/win-symlink-shim.mjs scripts/benchmark-sidebar.mjs",
+		"bench:workspace": "node --import ./scripts/win-symlink-shim.mjs scripts/benchmark-workspace.mjs",
 		"check": "npm run typecheck && npm run format:check && npm test && npm run check:pack && npm run check:audit && npm run check:install",
 		"bench:sidebar:win": "node --import ./scripts/win-symlink-shim.mjs scripts/benchmark-sidebar.mjs",
-		"bench:workspace:win": "node --import ./scripts/win-symlink-shim.mjs scripts/benchmark-workspace.mjs"
+		"bench:workspace:win": "node --import ./scripts/win-symlink-shim.mjs scripts/benchmark-workspace.mjs",
+		"bench:sidebar:posix": "node scripts/benchmark-sidebar.mjs",
+		"bench:workspace:posix": "node scripts/benchmark-workspace.mjs"
 	},
 	"peerDependencies": {
 		"@earendil-works/pi-coding-agent": ">=0.84.0",

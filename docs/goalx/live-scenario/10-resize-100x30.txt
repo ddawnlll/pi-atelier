@@ -1,0 +1,30 @@
+
+hon - <<'PY'
+                ╭─ ✦ GOAL X ─────────────────╮
+                │ PAUSED                     │
+                │ Second live goal           │
+')              │ Progress 0/1 · 0%          │
+                │ ░░░░░░░░                   │
+                │ ~ task-1 B task            │
+                │ inferred focus             │
+--/*.jsonl |    ╰────────────────────────────╯
+
+                ╭─ ✦ CONTEXT ────────────────╮
+-out            │ █████▋░░░░░░░░░░░░   31.0% │
+                │ Tokens         310k / 1.0M │
+                ╰────────────────────────────╯
+i-atelier"
+                ╭─ ✦ WORKSPACE ──────────────╮
+ --cli          │ src                        │
+es/@earendil-   │ ~/Documents/src            │
+ -18            │ inspecting…                │
+                │ History        638 entries │
+                │ Storage              Saved │
+xt              ╰────────────────────────────╯
+son
+
+out 1000s)
+
+
+ 31.0% ──────╮
+             │
