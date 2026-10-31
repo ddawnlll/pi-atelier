@@ -19,26 +19,11 @@ export function parseRefArgument(usage) {
 	return args[1] ? git(repositoryRoot, "rev-parse", "--verify", `${args[1]}^{commit}`) : undefined;
 }
 
-/**
- * Creates a directory link to `node_modules`.
- *
- * Windows only permits real symlinks with Developer Mode or elevation, so fall
- * back to a junction there; "dir" remains the portable default elsewhere.
- */
-export function linkNodeModules(target, destination) {
-	try {
-		fs.symlinkSync(target, destination, "dir");
-	} catch (error) {
-		if (process.platform !== "win32" || error?.code !== "EPERM") throw error;
-		fs.symlinkSync(target, destination, "junction");
-	}
-}
-
 /** Transpiles every src/*.ts at `revision` (or the working tree) into a temporary directory. */
 export function createSourceSandbox(prefix, revision) {
 	const directory = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 	fs.writeFileSync(path.join(directory, "package.json"), '{"type":"module"}');
-	linkNodeModules(path.join(repositoryRoot, "node_modules"), path.join(directory, "node_modules"));
+	fs.symlinkSync(path.join(repositoryRoot, "node_modules"), path.join(directory, "node_modules"), "dir");
 	fs.mkdirSync(path.join(directory, "src"));
 	const files = revision
 		? git(repositoryRoot, "ls-tree", "--name-only", `${revision}:src`).split("\n")

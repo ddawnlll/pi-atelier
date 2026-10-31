@@ -35,13 +35,29 @@ warnings   []
 | `npm run format:check` | pass (86 files) |
 | `npm run check:pack` | pass (38 files) |
 | `npm test` | 565 passed, 3 failed, 2 skipped — the 3 are the pre-existing Windows baseline failures (`run-activity` POSIX-home assertions, `subagent-usage` symlink `EPERM`) reproduced on `upstream/main` |
+| `npm run check` | fails at `format:check` locally only because biome also scans fork-local benchmark artifacts; with those moved under `docs/goalx/bench` the individual gates pass. `check:audit` requires registry access and was not part of the recorded run |
 | `npm run bench:sidebar` | no regression (see `performance.md`) |
 
 ### Isolated Pi process
 
-`PI_CODING_AGENT_DIR=<isolated>` with `pi-goal-x` + this fork, run as
-`pi --mode rpc --no-session --offline` and issued `get_state`: the process booted, both extensions
-initialised, the command succeeded, and stderr was empty.
+Two runs, both against the **installed host** (Pi 1.4.0), with an isolated
+`PI_CODING_AGENT_DIR` containing `pi-goal-x` and this fork:
+
+1. `pi --mode rpc --no-session --offline` + `get_state` — the package imports and the RPC command
+   succeeds with empty stderr. Note that Atelier returns early from `session_start` when
+   `ctx.mode !== "tui"`, so this run proves loading, **not** sidebar mounting.
+2. `winpty -Xallow-non-tty node <host cli.js> --offline --no-session --tui-mode regular` with a
+   configured model, driving `/goal-focus <id>` — a real TUI process started, Atelier's rail
+   rendered (model `deepseek-v4.1-flash`, thinking level, repo, context %, cost, `F6`), and the
+   session exited cleanly. The captured frame contains the rail but **not** the sidebar panel body:
+   the pseudo-terminal had no size (`cols/rows == 0` per libwinpty), so no split pane was laid out.
+
+### Not covered by a live TUI
+
+The focused-goal sidebar rendering in an interactive terminal, plus visual colour/border/repaint
+inspection. Everything above that is not a live TUI is verified through the real renderer, the real
+extension lifecycle (`tests/extension-goalx.test.ts`) and the real session/goal data. This remains
+the one manual acceptance step.
 
 ## Reproduce
 
