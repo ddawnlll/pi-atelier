@@ -31,12 +31,15 @@ const parsed = parseGoalXRecord(
 );
 if (!parsed) throw new Error("fixture did not parse");
 
+const CURRENT = deriveGoalXCurrentTask(parsed);
+if (!CURRENT) throw new Error("fixture has no current task");
+
 const VIEW: GoalXView = {
 	available: true,
 	focused: true,
 	openGoalCount: 1,
 	goal: parsed,
-	currentTask: deriveGoalXCurrentTask(parsed),
+	currentTask: CURRENT,
 	progress: deriveGoalXProgress(parsed),
 	audit: { phase: "idle", checksKnown: false, checks: [], findings: [] },
 	unfocusedOpen: 0,

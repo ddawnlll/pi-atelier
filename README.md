@@ -223,6 +223,22 @@ ignore `progress`. No-color mode uses plain filled/empty blocks.
 - Titles and rows are plain text. Terminal sequences are stripped and oversized payloads are rejected (see the exported `SIDEBAR_PANEL_MAX_*` limits).
 - Extensions that cannot import the helper can emit the exported `SidebarPanelEvent` types on the `pi-atelier:sidebar-panels` channel directly.
 
+## Pi Goal X integration
+
+This fork adds a read-only Pi Goal X panel: the focused goal, task progress, current task
+(explicit or Goal X's inferred fallback), upcoming/completed tasks, and the independent auditor's
+real verdict. Enable it with the `goalfocus` preset:
+
+```jsonc
+// ~/.pi/agent/pi-atelier.json
+{ "preset": "goalfocus", "sidebarWidth": 32 }
+```
+
+Goal X keeps ownership of goals, tasks, focus and audit verdicts; Atelier only reads its published
+state. Set `preset` back to `editorial` to restore the original layout. Full documentation,
+configuration reference, limitations, upstream-sync notes and rollback steps:
+[docs/goalx/README.md](docs/goalx/README.md).
+
 ## Troubleshooting
 
 | Problem | Fix |
