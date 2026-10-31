@@ -18,10 +18,10 @@ the panel's cost is bounded structurally instead (below).
 Raw data: `docs/goalx/bench/baseline-sidebar.json`, `docs/goalx/bench/after-sidebar.json`.
 
 Windows note: upstream's benchmark harness creates a directory symlink, which Windows rejects with
-`EPERM` unless Developer Mode is on. The numbers above were produced by applying a two-line
-junction fallback to `scripts/lib/source-sandbox.mjs` for the run only and then restoring the file, so
-no upstream tooling file is modified in the branch. To reproduce on Windows, apply the same
-temporary change, or run the benchmark under WSL/Developer Mode.
+`EPERM` unless Developer Mode is on. This branch leaves `scripts/lib/source-sandbox.mjs` byte-identical
+to upstream and ships `scripts/win-symlink-shim.mjs` instead, preloaded by `npm run bench:sidebar:win`.
+A run with that command recorded 1.6491 / 0.9688 / 2.2758 ms at 0/8/64 panels
+(`docs/goalx/bench/after-sidebar-win.json`), consistent with `npm run bench:sidebar` elsewhere.
 
 ## Render-path discipline
 

@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, appendFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -340,6 +340,35 @@ describe("view reading", () => {
 		expect(view.goal?.objective).toBe("Second");
 		expect(view.openGoalCount).toBe(2);
 		expect(view.unfocusedOpen).toBe(1);
+	});
+
+	it("reports a focused goal whose record is gone instead of showing a stale goal", () => {
+		const cwd = workspace();
+		const root = goalsDir(cwd);
+		writeFileSync(join(root, "goal_events.jsonl"), "\n");
+		// No active record for the focused id: Goal X archived it or the root changed.
+		const view = readGoalXView({ cwd, focus: focusOn("archived-goal") });
+		expect(view.focused).toBe(true);
+		expect(view.goal).toBeUndefined();
+		expect(view.recordMissing).toBe(true);
+		expect(view.progress).toEqual({ completed: 0, total: 0, percentage: 0 });
+		expect(view.audit.phase).toBe("idle");
+	});
+
+	it("shows the newly focused goal after the previous one is archived", () => {
+		const cwd = workspace();
+		writeGoal(cwd, { id: "goal-old", objective: "Old goal" });
+		writeGoal(cwd, { id: "goal-new", objective: "New goal" });
+		const root = goalsDir(cwd);
+		// Archive the old record exactly as Goal X does, then move focus.
+		mkdirSync(join(root, "archived"), { recursive: true });
+		renameSync(
+			join(root, "active_goal_2026010100000000_goal-old.md"),
+			join(root, "archived", "active_goal_2026010100000000_goal-old.md"),
+		);
+		const view = readGoalXView({ cwd, focus: focusOn("goal-new") });
+		expect(view.goal?.objective).toBe("New goal");
+		expect(view.recordMissing).toBeUndefined();
 	});
 
 	it("survives a corrupted goal file and reports malformed ledger lines", () => {

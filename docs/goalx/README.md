@@ -101,15 +101,17 @@ shortcuts are untouched.
 
 ## Performance
 
-See [performance.md](./performance.md). Summary: two `stat` calls per render request, parsing only
-when a file stamp changes, no timers in the render path, no model requests, no new dependencies.
+See [performance.md](./performance.md). Summary: one `stat` plus a session-branch scan per render
+request, parsing only when the ledger stamp changes, no timers in the render path, no model
+requests, no new dependencies.
 
 ## Tests
 
 ```bash
 npm test                                   # unit + integration (Windows: 3 pre-existing failures)
 PI_E2E=1 npx vitest run tests/e2e-goalx.test.ts        # full lifecycle on a temp storage layout
-PI_REAL_GOALS_ROOT=~/.pi/goals npx vitest run tests/e2e-real-data.test.ts
+PI_REAL_GOALS_ROOT=~/.pi/goals PI_REAL_SESSION=<session.jsonl> npx vitest run tests/e2e-real-data.test.ts
+npm run bench:sidebar:win                  # Windows benchmark (junction shim, upstream tooling untouched)
 ```
 
 `tests/goalx.test.ts` covers parsing, session focus, current-task semantics, progress and audit

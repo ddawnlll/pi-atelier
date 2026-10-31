@@ -34,8 +34,11 @@ npm package names.
   `currentTaskId`, `taskList{tasks,blockCompletion}`, `revision`, `tokenBudget`.
 - `GoalTask` (`goal-record.ts`): `id`, `title`, `status` (`pending|complete|skipped`), `subtasks`,
   `evidence`, `verificationContract`, `completedAt`, `skippedAt`, `skipReason`.
-- Focus: not a file — reconstructed from the ledger. `storage/goal-root.ts` resolves the root from
-  `goalsRoot` / `PI_GOAL_ROOT`, and `.goal-ledger-checkpoint.json` carries `focusedGoalId`.
+- Focus: **session-scoped**, written as a `custom` session entry with `customType: "pi-goal-focus"`
+  and `data.focusedGoalId` (`goal-format.ts` `FOCUS_ENTRY`). The ledger and the checkpoint also
+  record project-level focus, but that is another session's business: Atelier reads focus only from
+  `ctx.sessionManager.getBranch()` and never from the ledger.
+- `storage/goal-root.ts` resolves the root from `goalsRoot` / `PI_GOAL_ROOT`.
 - Ledger: `<goalsRoot>/goal_events.jsonl`, one `GoalLedgerEvent` per line (`goal-ledger.ts`), including
   `goal_focused`, `goal_unfocused`, `task_started`, `task_complete`, `audit_started`,
   `audit_result{verdict,report}`, `audit_skipped`, `completion_requested`, `goal_completed`.

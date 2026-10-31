@@ -52,12 +52,20 @@ Two runs, both against the **installed host** (Pi 1.4.0), with an isolated
    session exited cleanly. The captured frame contains the rail but **not** the sidebar panel body:
    the pseudo-terminal had no size (`cols/rows == 0` per libwinpty), so no split pane was laid out.
 
-### Not covered by a live TUI
+3. **Live focused-goal sidebar (sized ConPTY).** `pywinpty` opened a real 150x45 pseudo-terminal and
+   started the installed Pi 1.4.0 with an isolated agent dir (pi-goal-x + this fork,
+   `pi-atelier.json` = `goalfocus`), a read-only copy of a real session (so session focus resolves)
+   and `PI_GOAL_ROOT` pointed at a copy of the goal root whose focused goal was set to `paused`, so
+   no agent or auditor run could start. Capture: `docs/goalx/live-tui-frame.txt` — the sidebar
+   rendered `GOAL X`, `PAUSED`, the real objective, `Progress 13/13 · 100%`, `✓ 13 done · 10 hidden`,
+   the completed task rows and `AUDIT · CHANGES NEEDED`, next to `CONTEXT`. This satisfies the
+   "sidebar verified with a test goal" criterion in a live process.
 
-The focused-goal sidebar rendering in an interactive terminal, plus visual colour/border/repaint
-inspection. Everything above that is not a live TUI is verified through the real renderer, the real
-extension lifecycle (`tests/extension-goalx.test.ts`) and the real session/goal data. This remains
-the one manual acceptance step.
+### Still not covered by a live TUI
+
+Pixel-level appearance only: colours, borders and repaint smoothness were observed as text frames,
+not images, and no screenshot file is committed (see `live-tui-frame.txt`, which is the exact frame
+with ANSI stripped). The widget-hidden state also needs a restart, so it remains unit-tested.
 
 ## Reproduce
 

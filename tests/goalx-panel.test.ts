@@ -120,6 +120,13 @@ describe("goal panel composition", () => {
 		expect(text).toContain("▸ Child next");
 	});
 
+	it("labels an archived or missing record instead of a stale goal", () => {
+		const text = joined(view({ goal: undefined, currentTask: undefined, recordMissing: true }));
+		expect(text).toContain("Goal record not found");
+		expect(text).toContain("archived or moved");
+		expect(text).not.toContain("Reading goal…");
+	});
+
 	it("says so when Goal X is absent or nothing is focused", () => {
 		expect(joined(view({ available: false, focused: false }))).toContain("Goal X not detected");
 		expect(joined(view({ focused: false, goal: undefined }))).toContain("No goal focused");

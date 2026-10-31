@@ -44,7 +44,7 @@ preset take effect on the **next safe Pi start**; no running agent or auditor wa
 - The installed checkout's `HEAD` equals the deployed pin and the branch head on GitHub
   (`gh api repos/ddawnlll/pi-atelier/commits/feat/pi-goal-x-integration --jq .sha`).
 - The installed source is byte-identical to the commit whose tests, benchmark and end-to-end run
-  are recorded in `performance.md` and `.bench-records/`.
+  are recorded in `performance.md` and `docs/goalx/bench/`.
 
 ## Not verified automatically
 

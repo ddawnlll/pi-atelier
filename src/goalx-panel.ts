@@ -30,7 +30,7 @@ const statusRow = (view: GoalXView): Row => {
 	if (!view.available) return { text: "Goal X not detected", role: "dim" };
 	if (!view.focused) return { text: "No goal focused", role: "muted" };
 	const goal = view.goal;
-	if (!goal) return { text: "Reading goal…", role: "dim" };
+	if (!goal) return { text: view.recordMissing ? "Goal record not found" : "Reading goal…", role: "caution" };
 	switch (goal.status) {
 		case "active":
 			return { text: goal.autoContinue ? "RUNNING · AUTO" : "RUNNING", role: "working" };
@@ -198,6 +198,9 @@ export function buildGoalXPanel(view: GoalXView): SidebarPanelContribution {
 					role: task.status === "complete" ? "success" : "dim",
 				});
 		}
+	} else if (view.focused) {
+		rows.push({ text: "archived or moved", role: "dim" });
+		rows.push({ text: "not in this goal root", role: "dim" });
 	} else if (view.available) {
 		if (view.unfocusedOpen > 0)
 			rows.push({ text: `${view.unfocusedOpen} open · not focused`, role: "muted" });

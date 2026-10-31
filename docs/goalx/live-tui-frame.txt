@@ -1,0 +1,31 @@
+Live Pi 1.4.0 TUI, 150x45 ConPTY, isolated agent dir, session focus from a read-only
+session copy, goal root pointed at a paused copy so no agent/auditor run started.
+ANSI stripped; text frames, not an image.
+
+
+                ╭─ ✦ GOAL X ─────────────────╮
+
+alls and        │ PAUSED                     │
+
+ntinue. To be   │ Fork https://github.com/mi │
+
+itten to        │ Progress 13/13 · 100%      │
+
+ui/repo for     │ ████████                   │
+
+override. Let   │ ✓ 13 done · 10 hidden      │
+
+                │ ✓ Validate end-to-end in i │
+
+                │ ✓ Install the validated fo │
+
+t: use          │ ✓ Write docs, push branch  │
+
+false. Then     │ AUDIT · CHANGES NEEDED     │
+
+ed). Model      │ ✕ Final decision           │
+
+                │ Decision: CHANGES REQUESTE │
+
+                │ - ## Audit findings        │
+

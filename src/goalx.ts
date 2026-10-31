@@ -93,6 +93,11 @@ export interface GoalXView {
 	audit: GoalXAudit;
 	/** True when a goal exists in the pool but this session is explicitly unfocused. */
 	unfocusedOpen: number;
+	/**
+	 * The session focused an id that has no active goal record: Goal X archived it, another process
+	 * moved it, or the root changed. Never silently keeps showing a stale goal.
+	 */
+	recordMissing?: boolean;
 	storageRoot: string;
 	warnings: string[];
 }
@@ -617,7 +622,7 @@ export function readGoalXView(options: GoalXViewOptions): GoalXView {
 	const goal = loaded.goal;
 	if (!goal) {
 		// Focused id without a matching record: Goal X is mid-write, archived it, or the root differs.
-		return base;
+		return { ...base, recordMissing: true };
 	}
 	const currentTask = deriveGoalXCurrentTask(goal);
 	return {
