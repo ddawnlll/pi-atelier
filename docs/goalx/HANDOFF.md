@@ -6,9 +6,9 @@
 |---|---|
 | Fork | https://github.com/ddawnlll/pi-atelier |
 | Branch | `feat/pi-goal-x-integration` |
-| Code commit | the branch head at the time of writing (installed pin == branch head == `origin`); this file is committed in the immediately following docs-only commit, so `git rev-parse --short HEAD^` is the code commit it describes |
+| Code commit | `89c62da` (this file ships in the docs-only commit that follows it; the installed pin is that later commit) |
 | Upstream base | `93025f2` — pi-atelier 0.18.0, MIT |
-| Changed files | filled in the docs-only commit that follows the code commit (see below) |
+| Changed files |  63 files changed, 5800 insertions(+), 8 deletions(-) — `git diff --shortstat upstream/main..89c62da` |
 | Remotes | `origin` = fork, `upstream` = michaelmjhhhh/pi-atelier |
 | Installed pin | read from `pi list`; equals `git rev-parse HEAD` in the installed checkout |
 
