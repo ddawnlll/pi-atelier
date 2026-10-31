@@ -6,9 +6,9 @@
 |---|---|
 | Fork | https://github.com/ddawnlll/pi-atelier |
 | Branch | `feat/pi-goal-x-integration` |
-| Code commit | filled in the docs-only commit that follows |
+| Code commit | `78ad22c` (this file ships in the docs-only commit after it; the installed pin is that later commit) |
 | Upstream base | `93025f2` — pi-atelier 0.18.0, MIT |
-| Changed files | filled in the docs-only commit that follows the code commit |
+| Changed files |  63 files changed, 5865 insertions(+), 8 deletions(-) — `git diff --shortstat upstream/main..78ad22c` |
 | Remotes | `origin` = fork, `upstream` = michaelmjhhhh/pi-atelier |
 | Installed pin | read from `pi list`; equals `git rev-parse HEAD` in the installed checkout |
 
