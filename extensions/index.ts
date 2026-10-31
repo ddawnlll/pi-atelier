@@ -18,6 +18,8 @@ import { DEFAULT_CONFIG, loadConfig, saveUserConfigPatch } from "../src/config.j
 import { AtelierEditor } from "../src/editor.js";
 import { type AtelierFooterComponent, createFooterComponent } from "../src/footer.js";
 import { createImageCompositorBinding } from "../src/image-compositor.js";
+import { buildGoalXPanel, GOALX_PANEL_ID } from "../src/goalx-panel.js";
+import { createGoalXReader, type GoalXReader } from "../src/goalx.js";
 import { openAtelierControlCenter, openDisplaySettingsWorkspace, sidebarStatusLabel } from "../src/menu.js";
 import type { OverlayLifetime } from "../src/overlay-lifecycle.js";
 import {
@@ -135,6 +137,8 @@ interface ActiveSession {
 	readonly runActivity: RunActivityTracker;
 	/** Live prefill progress for the current provider request, plus the render coalescing it needs. */
 	readonly prefill: PrefillTracker;
+	/** Read-only Goal X state; refreshes from watch events and lifecycle syncs, never polls per frame. */
+	readonly goalX: GoalXReader;
 	readonly prefillThrottle: PrefillThrottle;
 	readonly completionNotifier: CompletionNotifier;
 	readonly retiredState: AtelierState;
@@ -213,6 +217,7 @@ export default function atelierExtension(
 
 	const requestAllRenders = (targetSession: ActiveSession): void => {
 		if (!enabled || activeSession !== targetSession) return;
+		syncGoalXPanel(targetSession);
 		targetSession.requestFooterRender();
 		targetSession.sidebar.requestRender();
 	};
@@ -244,6 +249,23 @@ export default function atelierExtension(
 		if (next.length === current.length && next.every((status, index) => status === current[index])) return;
 		targetSession.extensionStatuses = [...next];
 		targetSession.sidebar.requestRender();
+	}
+
+	/**
+	 * Publishes the current Goal X view as an Atelier sidebar panel. Runs only when a
+	 * render is already being requested, keyed by file stamps, and Atelier drops an
+	 * identical contribution, so an unchanged view costs no extra render.
+	 */
+	function syncGoalXPanel(session: ActiveSession): void {
+		// Only publish when the active layout knows the panel. A stock Atelier layout therefore
+		// behaves exactly as upstream: no extra Settings row and no extra sidebar content.
+		const configured = session.runtime
+			.getConfig()
+			.sidebarPanelLayout.some((entry) => entry.id === GOALX_PANEL_ID);
+		attempt(() => {
+			if (configured) session.panelRegistry.register(buildGoalXPanel(session.goalX.view()), "pi-atelier");
+			else session.panelRegistry.unregister(GOALX_PANEL_ID, "pi-atelier");
+		});
 	}
 
 	function getSidebarSnapshot(targetSession: ActiveSession): SidebarSnapshot {
@@ -328,6 +350,8 @@ export default function atelierExtension(
 		for (const cancel of Array.from(session.overlayCancellations)) attempt(cancel);
 		session.overlayCancellations.clear();
 		attempt(() => session.sidebar.dispose());
+		attempt(() => session.panelRegistry.unregister(GOALX_PANEL_ID, "pi-atelier"));
+		attempt(() => session.goalX.dispose());
 		attempt(() => session.panelRegistry.dispose());
 		attempt(() => session.runtime.dispose());
 		attempt(() => session.runActivity.reset());
@@ -790,6 +814,20 @@ export default function atelierExtension(
 			onChange: requestRenders,
 		});
 		cleanup.push(() => panelRegistry.dispose());
+		const goalX = createGoalXReader({
+			cwd: ctx.cwd,
+			onChange: () => {
+				const current = activeSession;
+				if (!current || current.token !== token) return;
+				syncGoalXPanel(current);
+				requestAllRenders(current);
+			},
+		});
+		cleanup.push(() => goalX.dispose());
+		// Publish the first frame before the session goes live, so the initial registration
+		// cannot schedule an extra render against a session that is already active.
+		if (config.sidebarPanelLayout.some((entry) => entry.id === GOALX_PANEL_ID))
+			attempt(() => panelRegistry.register(buildGoalXPanel(goalX.view()), "pi-atelier"));
 		const completionNotifier = createCompletionNotifier({
 			isEnabled: () => enabled && isPublished() && runtime.getConfig().completionNotifications,
 			...(dependencies.notificationPlatform === undefined
@@ -829,6 +867,7 @@ export default function atelierExtension(
 			panelRegistry,
 			runActivity,
 			prefill,
+			goalX,
 			prefillThrottle,
 			completionNotifier,
 			retiredState: createInertAtelierState(autoCompact),

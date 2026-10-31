@@ -550,6 +550,11 @@ const DROP_RANK = {
 	subagents: 18,
 	usage: 20,
 	contributed: 25,
+	/**
+	 * Goal X answers "what is my agent doing": it is required, so a short terminal
+	 * compacts other panels' rows before it hides the current task.
+	 */
+	goalContribution: Number.POSITIVE_INFINITY,
 	workspace: 30,
 	olderRecentTool: 50,
 	aggregate: 60,
@@ -935,7 +940,7 @@ export function renderSidebarLines(
 			name: `contributed:${panel.id}`,
 			panel: { id: panel.id, title: (panel.title || panel.id).toUpperCase(), role: panel.role ?? "accent" },
 			rows: rows.length > 0 ? rows : [palette.paint("dim", "No data")],
-			dropRank: DROP_RANK.contributed,
+			dropRank: panel.id.startsWith("goalx:") ? DROP_RANK.goalContribution : DROP_RANK.contributed,
 		});
 	}
 	if (!availableVisible) {
