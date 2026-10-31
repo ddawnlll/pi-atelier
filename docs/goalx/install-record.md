@@ -14,7 +14,7 @@
 
 | Item | Value |
 |---|---|
-| Active Atelier | `git:github.com/ddawnlll/pi-atelier@<commit>` → `~/.pi/agent/git/github.com/ddawnlll/pi-atelier` |
+| Active Atelier | `git:github.com/ddawnlll/pi-atelier@a8ff474e6f5116dbfcb98e917ac753893b6cb66f` → `~/.pi/agent/git/github.com/ddawnlll/pi-atelier` (the pin is whatever `pi list` prints; it equals `git rev-parse HEAD` in the installed checkout) |
 | Instances | exactly one; the upstream git package was removed first |
 | Other extensions | unchanged (`pi-observational-memory`, `@pi-plugins/speed`, `pi-goal-x`, `@tintinweb/pi-subagents`, `opensec-pi-todo`, `opensec-pi-fff`) |
 | Preset | `~/.pi/agent/pi-atelier.json` → `{"preset":"goalfocus","sidebarWidth":32}` |
@@ -23,7 +23,9 @@
 ## Rollback (executed and verified)
 
 ```powershell
-pi remove git:github.com/ddawnlll/pi-atelier@<commit>
+# The pin is the exact string `pi list` reports; read it, then use it verbatim.
+$pin = ((pi list) | Select-String 'ddawnlll/pi-atelier@').ToString().Trim()
+pi remove $pin
 pi install https://github.com/michaelmjhhhh/pi-atelier
 Remove-Item ~/.pi/agent/pi-atelier.json
 ```
@@ -39,8 +41,8 @@ preset take effect on the **next safe Pi start**; no running agent or auditor wa
 ## Verification performed
 
 - `pi list` resolves the fork from both `settings.json` and an isolated `PI_CODING_AGENT_DIR`.
-- The installed checkout's `HEAD` equals the deployed commit SHA and the branch head on GitHub
-  (`gh api repos/ddawnlll/pi-atelier/commits/feat/pi-goal-x-integration`).
+- The installed checkout's `HEAD` equals the deployed pin and the branch head on GitHub
+  (`gh api repos/ddawnlll/pi-atelier/commits/feat/pi-goal-x-integration --jq .sha`).
 - The installed source is byte-identical to the commit whose tests, benchmark and end-to-end run
   are recorded in `performance.md` and `.bench-records/`.
 
